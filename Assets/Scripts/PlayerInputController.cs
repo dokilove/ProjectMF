@@ -5,19 +5,11 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IPlayerAction
 {
     private Player_Actions playerActions;
 
-    // °ø°³ ÇÁ·ÎÆÛÆ¼: ´Ù¸¥ ½ºÅ©¸³Æ®µéÀÌ ÃÖÁ¾ÀûÀ¸·Î Ã³¸®µÈ °ªÀ» ÀĞ¾î°©´Ï´Ù.
     public Vector2 MoveDirection { get; private set; }
     public Vector2 LookDirection { get; private set; }
-    public float ZoomValue { get; private set; }
 
     public event System.Action OnJumpAction;
     public event System.Action<string> OnActionTriggered;
-
-    // --- »õ·Î Ãß°¡µÈ ºÎºĞ ---
-    // Äİ¹é¿¡¼­ ¹ŞÀº ¿øº» ÀÔ·Â °ªÀ» ÀÓ½Ã·Î ÀúÀåÇÒ ³»ºÎ º¯¼öÀÔ´Ï´Ù.
-    private Vector2 _rawLookInput;
-    private float _rawZoomInput;
-    // ----------------------
 
     private void Awake()
     {
@@ -35,42 +27,14 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IPlayerAction
         playerActions.Player.Disable();
     }
 
-    // LateUpdate¿¡¼­ ¸Å ÇÁ·¹ÀÓ¸¶´Ù ÇöÀç ÀÔ·Â »óÅÂ¸¦ Á÷Á¢ ÀĞ¾î¿Í Ã³¸®ÇÕ´Ï´Ù.
     private void LateUpdate()
     {
-        // 1. ¸Å ÇÁ·¹ÀÓ¸¶´Ù °¢ ¾×¼ÇÀÇ ÇöÀç °ªÀ» Á÷Á¢ ÀĞ¾î¿É´Ï´Ù. (Æú¸µ)
-        Vector2 currentLookInput = playerActions.Player.Camera.ReadValue<Vector2>();
-        float currentZoomInput = playerActions.Player.Zoom.ReadValue<float>();
-
-        // Walk ¾×¼Çµµ ¿©±â¼­ Á÷Á¢ ÀĞ¾î¿Í¼­ MoveDirectionÀ» °»½ÅÇÕ´Ï´Ù.
         MoveDirection = playerActions.Player.Walk.ReadValue<Vector2>();
-
-        // 2. ÁÜ ÀÔ·ÂÀÌ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-        bool isZooming = currentZoomInput != 0;
-
-        // 3. ÁÜ ÀÔ·Â ¿©ºÎ¿¡ µû¶ó °ø°³ ÇÁ·ÎÆÛÆ¼ÀÇ °ªÀ» ÃÖÁ¾ °áÁ¤ÇÕ´Ï´Ù.
-        if (isZooming)
-        {
-            // ÁÜÀ» ÇÏ´Â ÁßÀÌ¶ó¸é, Ä«¸Ş¶ó ¿òÁ÷ÀÓ °ªÀ» 0À¸·Î ¸¸µé¾î È¸ÀüÀ» ¸·½À´Ï´Ù.
-            LookDirection = Vector2.zero;
-        }
-        else
-        {
-            // ÁÜÀ» ÇÏÁö ¾ÊÀ» ¶§¸¸, ½ÇÁ¦ ¸¶¿ì½º/½ºÆ½ ¿òÁ÷ÀÓ °ªÀ» Àü´ŞÇÕ´Ï´Ù.
-            LookDirection = currentLookInput;
-        }
-
-        // 4. ÃÖÁ¾ ÁÜ °ªÀ» °ø°³ ÇÁ·ÎÆÛÆ¼¿¡ ÇÒ´çÇÕ´Ï´Ù.
-        ZoomValue = currentZoomInput;
+        LookDirection = playerActions.Player.Camera.ReadValue<Vector2>();
     }
-
-    // --- ¾Æ·¡ Äİ¹é ¸Ş¼ÒµåµéÀÌ ¼öÁ¤µÇ¾ú½À´Ï´Ù ---
-    // ÀÌÁ¦ Äİ¹é¿¡¼­´Â °ø°³ ÇÁ·ÎÆÛÆ¼¸¦ Á÷Á¢ ¼öÁ¤ÇÏÁö ¾Ê°í,
-    // ³»ºÎ º¯¼ö¿¡ ¿øº» °ªÀ» ÀúÀå¸¸ ÇÕ´Ï´Ù.
 
     public void OnCamera(InputAction.CallbackContext context)
     {
-        _rawLookInput = context.ReadValue<Vector2>(); // ³»ºÎ º¯¼ö¿¡ ÀúÀå
         if (context.performed)
         {
             OnActionTriggered?.Invoke(context.control.displayName);
@@ -88,19 +52,12 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IPlayerAction
 
     public void OnWalk(InputAction.CallbackContext context)
     {
-        MoveDirection = context.ReadValue<Vector2>(); // Move´Â ´Ù¸¥ ·ÎÁ÷°ú Ãæµ¹ ¾øÀ¸¹Ç·Î Á÷Á¢ ÇÒ´ç
         if (context.performed)
         {
             OnActionTriggered?.Invoke(context.control.displayName);
         }
     }
 
-    public void OnZoom(InputAction.CallbackContext context)
-    {
-        _rawZoomInput = context.ReadValue<float>(); // ³»ºÎ º¯¼ö¿¡ ÀúÀå
-        if (context.performed)
-        {
-            OnActionTriggered?.Invoke(context.control.displayName);
-        }
-    }
+    // Zoom ê´€ë ¨ ì½”ë“œê°€ ëª¨ë‘ ì œê±°ë˜ì—ˆìŠµë‹ˆë‹¤.
+    public void OnZoom(InputAction.CallbackContext context) {}
 }

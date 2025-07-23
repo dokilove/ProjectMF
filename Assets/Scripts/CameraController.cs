@@ -2,46 +2,37 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [Header("ÇÊ¼ö ÄÄÆ÷³ÍÆ®")]
-    [Tooltip("Ä«¸Ş¶ó°¡ µû¶ó´Ù´Ò ´ë»óÀÔ´Ï´Ù. º¸Åë ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ¸¦ ÇÒ´çÇÕ´Ï´Ù.")]
+    [Header("í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸")]
+    [Tooltip("ì¹´ë©”ë¼ê°€ ë”°ë¼ë‹¤ë‹ ëŒ€ìƒì…ë‹ˆë‹¤. ë³´í†µ í”Œë ˆì´ì–´ ìºë¦­í„°ë¥¼ í• ë‹¹í•©ë‹ˆë‹¤.")]
     public Transform target;
 
-    [Tooltip("ÀÔ·ÂÀ» ¹Ş¾Æ¿À´Â PlayerInputController ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.")]
+    [Tooltip("ì…ë ¥ì„ ë°›ì•„ì˜¬ PlayerInputController ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerInputController inputController;
 
-    [Header("Ä«¸Ş¶ó ¼³Á¤")]
-    [Tooltip("Ä«¸Ş¶ó È¸Àü ¼ÓµµÀÔ´Ï´Ù.")]
+    [Header("ì¹´ë©”ë¼ ì„¤ì •")]
+    [Tooltip("ì¹´ë©”ë¼ íšŒì „ ì†ë„ì…ë‹ˆë‹¤.")]
     public float lookSpeed = 200f;
 
-    [Tooltip("Ä«¸Ş¶ó ÁÜ ¼ÓµµÀÔ´Ï´Ù.")]
-    public float zoomSpeed = 10f;
+    [Tooltip("íƒ€ê²Ÿìœ¼ë¡œë¶€í„°ì˜ ê³ ì • ê±°ë¦¬ì…ë‹ˆë‹¤.")]
+    public float distance = 5f;
 
-    [Tooltip("Å¸°Ù°úÀÇ ÃÖ¼Ò °Å¸® (ÁÜ ÀÎ ÃÖ´ë)")]
-    public float minDistance = 1f;
-
-    [Tooltip("Å¸°Ù°úÀÇ ÃÖ´ë °Å¸® (ÁÜ ¾Æ¿ô ÃÖ´ë)")]
-    public float maxDistance = 10f;
-
-    [Tooltip("Ä«¸Ş¶óÀÇ ¼öÁ÷ È¸Àü(Pitch) ÃÖ¼Ò °¢µµÀÔ´Ï´Ù.")]
+    [Tooltip("ì¹´ë©”ë¼ì˜ ìƒí•˜ íšŒì „(Pitch) ìµœì†Œ ê°ë„ì…ë‹ˆë‹¤.")]
     public float minPitch = -45f;
 
-    [Tooltip("Ä«¸Ş¶óÀÇ ¼öÁ÷ È¸Àü(Pitch) ÃÖ´ë °¢µµÀÔ´Ï´Ù.")]
+    [Tooltip("ì¹´ë©”ë¼ì˜ ìƒí•˜ íšŒì „(Pitch) ìµœëŒ€ ê°ë„ì…ë‹ˆë‹¤.")]
     public float maxPitch = 80f;
 
-    [Tooltip("Ä«¸Ş¶ó°¡ ¹Ù¶óº¼ Å¸°ÙÀÇ ¿ÀÇÁ¼ÂÀÔ´Ï´Ù. (¿¹: Ä³¸¯ÅÍÀÇ ¸Ó¸® À§Ä¡)")]
+    [Tooltip("ì¹´ë©”ë¼ê°€ ë°”ë¼ë³¼ íƒ€ê²Ÿì˜ ì˜¤í”„ì…‹ì…ë‹ˆë‹¤. (ì˜ˆ: ìºë¦­í„°ì˜ ë¨¸ë¦¬ ìœ„ì¹˜)")]
     public Vector3 targetOffset = new Vector3(0, 1.5f, 0);
 
-    // ³»ºÎ º¯¼ö
-    private float currentDistance;
-    private float yaw = 0.0f; // ¼öÆò È¸Àü (YÃà ±âÁØ)
-    private float pitch = 0.0f; // ¼öÁ÷ È¸Àü (XÃà ±âÁØ)
+    [Tooltip("ì¹´ë©”ë¼ ì¶©ëŒì„ ê°ì§€í•  ë ˆì´ì–´ ë§ˆìŠ¤í¬ì…ë‹ˆë‹¤.")]
+    public LayerMask obstacleMask;
+
+    private float yaw = 0.0f; // ì¢Œìš° íšŒì „ (Yì¶• ê¸°ì¤€)
+    private float pitch = 0.0f; // ìƒí•˜ íšŒì „ (Xì¶• ê¸°ì¤€)
 
     void Start()
     {
-        // ÃÊ±â °Å¸® ¼³Á¤
-        currentDistance = (minDistance + maxDistance) / 2;
-
-        // ½ÃÀÛ ½Ã Ä«¸Ş¶óÀÇ ÃÊ±â È¸Àü °ªÀ» ÇöÀç Å¸°ÙÀ» ¹Ù¶óº¸µµ·Ï ¼³Á¤
         if (target != null)
         {
             Vector3 angles = transform.eulerAngles;
@@ -49,44 +40,45 @@ public class CameraController : MonoBehaviour
             pitch = angles.x;
         }
 
-        // ¸¶¿ì½º Ä¿¼­ ¼û±â±â ¹× Àá±İ
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    // Update°¡ ³¡³­ ÈÄ ½ÇÇàµÇ¾î, Ä³¸¯ÅÍÀÇ ¿òÁ÷ÀÓÀÌ ¸ğµÎ ³¡³­ ÈÄ Ä«¸Ş¶ó°¡ µû¶ó°¡µµ·Ï ÇÕ´Ï´Ù.
     void LateUpdate()
     {
         if (target == null || inputController == null)
         {
-            Debug.LogWarning("Ä«¸Ş¶ó Å¸°Ù ¶Ç´Â ÀÔ·Â ÄÁÆ®·Ñ·¯°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("ì¹´ë©”ë¼ íƒ€ê²Ÿ ë˜ëŠ” ì…ë ¥ ì»¨íŠ¸ë¡¤ëŸ¬ê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // 1. Ä«¸Ş¶ó È¸Àü (¸¶¿ì½º ÀÔ·Â)
+        // 1. ì¹´ë©”ë¼ íšŒì „ (ë§ˆìš°ìŠ¤ ì…ë ¥)
         Vector2 lookInput = inputController.LookDirection;
         yaw += lookInput.x * lookSpeed * Time.deltaTime;
-        pitch -= lookInput.y * lookSpeed * Time.deltaTime; // YÃà ÀÔ·ÂÀº ¹İÀü½ÃÄÑ¾ß ÀÚ¿¬½º·´½À´Ï´Ù.
-        pitch = Mathf.Clamp(pitch, minPitch, maxPitch); // ¼öÁ÷ °¢µµ Á¦ÇÑ
+        pitch -= lookInput.y * lookSpeed * Time.deltaTime;
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
 
-        // 2. Ä«¸Ş¶ó ÁÜ (¸¶¿ì½º ½ºÅ©·Ñ)
-        float zoomInput = inputController.ZoomValue;
-        if (zoomInput != 0)
-        {
-            // ½ºÅ©·Ñ °ªÀÇ ¹æÇâ¸¸ »ç¿ë (½ºÅ©·Ñ °ªÀº º¸Åë 120 ´ÜÀ§·Î µé¾î¿À±â ¶§¹®)
-            currentDistance -= Mathf.Sign(zoomInput) * zoomSpeed * Time.deltaTime;
-            currentDistance = Mathf.Clamp(currentDistance, minDistance, maxDistance);
-        }
-
-        // 3. Ä«¸Ş¶ó À§Ä¡ °è»ê
-        // Å¸°Ù À§Ä¡¿¡¼­ È¸Àü ¹æÇâÀ¸·Î °Å¸®¸¸Å­ ¶³¾îÁø À§Ä¡¸¦ °è»êÇÕ´Ï´Ù.
-        Vector3 direction = new Vector3(0, 0, -currentDistance);
+        // 2. ì›í•˜ëŠ” ì¹´ë©”ë¼ ìœ„ì¹˜ ê³„ì‚°
+        Vector3 direction = new Vector3(0, 0, -distance);
         Vector3 desiredPosition = target.position + targetOffset + (rotation * direction);
 
-        // 4. Ä«¸Ş¶ó À§Ä¡¿Í È¸Àü Àû¿ë
-        transform.position = desiredPosition;
+        // 3. ì¹´ë©”ë¼ ì¶©ëŒ ì²˜ë¦¬
+        RaycastHit hit;
+        // í”Œë ˆì´ì–´ ìœ„ì¹˜ì—ì„œ ì›í•˜ëŠ” ì¹´ë©”ë¼ ìœ„ì¹˜ê¹Œì§€ ë¼ì¸ì„ ê·¸ë ¤ ì¥ì• ë¬¼ì´ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        if (Physics.Linecast(target.position + targetOffset, desiredPosition, out hit, obstacleMask))
+        {
+            // ì¥ì• ë¬¼ì´ ìˆë‹¤ë©´, ì¶©ëŒ ì§€ì ìœ¼ë¡œ ì¹´ë©”ë¼ ìœ„ì¹˜ë¥¼ ì¡°ì •í•©ë‹ˆë‹¤.
+            transform.position = hit.point;
+        }
+        else
+        {
+            // ì¥ì• ë¬¼ì´ ì—†ë‹¤ë©´, ì›í•˜ëŠ” ìœ„ì¹˜ì— ì¹´ë©”ë¼ë¥¼ ë‘¡ë‹ˆë‹¤.
+            transform.position = desiredPosition;
+        }
+
+        // 4. ì¹´ë©”ë¼ê°€ í•­ìƒ íƒ€ê²Ÿì„ ë°”ë¼ë³´ë„ë¡ ì„¤ì •
         transform.LookAt(target.position + targetOffset);
     }
 }
