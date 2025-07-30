@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections; // 코루틴 사용을 위해 추가
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(PlayerInputController))]
@@ -13,11 +12,9 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f;
     public float rotationSpeed = 15f;
 
-    [Header("회피 설정")]
-    [Tooltip("캐릭터의 뒤로 회피하는 힘입니다.")]
-    public float dashForce = 10f;
-    [Tooltip("회피가 지속되는 시간입니다.")]
-    public float dashTime = 0.2f;
+    [Header("점프 설정")]
+    [Tooltip("캐릭터의 점프 힘입니다.")]
+    public float jumpForce = 5f;
 
     [Tooltip("바닥을 감지할 위치입니다. 보통 캐릭터 발 아래에 둡니다.")]
     public Transform groundCheck;
@@ -28,7 +25,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody rb;
     private bool isGrounded;
-    private bool isDashing = false; // 회피 상태를 저장할 변수
 
     private void Awake()
     {
@@ -43,23 +39,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnEnable()
     {
-        inputController.OnJumpAction += HandleDash;
+        inputController.OnJumpAction += HandleJump;
     }
 
     private void OnDisable()
     {
-        inputController.OnJumpAction -= HandleDash;
+        inputController.OnJumpAction -= HandleJump;
     }
 
     private void FixedUpdate()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-
-        // 회피 중일 때는 이동 및 회전 입력을 무시합니다.
-        if (isDashing)
-        {
-            return;
-        }
 
         // 이동 및 회전 로직
         Vector2 moveInput = inputController.MoveDirection;
@@ -82,31 +72,20 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // --- 회피를 처리하는 메소드 ---
-    private void HandleDash()
+    // --- 점프를 처리하는 메소드 ---
+    private void HandleJump()
     {
-        // 바닥에 있고, 현재 다른 회피 동작 중이 아닐 때만 회피가 가능합니다.
-        if (isGrounded && !isDashing)
+        // 바닥에 있을 때만 점프가 가능합니다.
+        if (isGrounded)
         {
-            StartCoroutine(Dash());
+            Jump();
         }
     }
 
-    // --- 회피 동작을 위한 코루틴 ---
-    private IEnumerator Dash()
+    // --- 점프 동작 ---
+    private void Jump()
     {
-        isDashing = true;
-
-        // Rigidbody의 속도를 직접 변경하여 미끄러지듯이 뒤로 이동시킵니다.
-        Vector3 dashVelocity = -transform.forward * dashForce;
-        rb.linearVelocity = new Vector3(dashVelocity.x, rb.linearVelocity.y, dashVelocity.z);
-
-        // dashTime 만큼 대기합니다.
-        yield return new WaitForSeconds(dashTime);
-
-        // 회피가 끝난 후 속도를 초기화하여 미끄러짐을 멈춥니다.
-        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
-
-        isDashing = false;
+        // y축 방향으로 힘을 가해 점프합니다.
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 }
