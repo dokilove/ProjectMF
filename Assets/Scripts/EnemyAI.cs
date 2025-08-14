@@ -6,6 +6,10 @@ using System.Collections.Generic;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
 {
+    [Header("식별자")]
+    [Tooltip("GameDataManager에 정의된 적 ID")]
+    public string enemyId;
+
     public enum AIState { GoToStartPoint, Patrolling, Chasing }
     private AIState currentState;
 
@@ -273,7 +277,8 @@ public class EnemyAI : MonoBehaviour
         {
             if (currentState == AIState.Chasing && !isInBattle)
             {
-                BattleManager.Instance.StartBattle(); // 현재 EnemyAI 인스턴스를 전달하지 않음
+                Debug.Log($"{enemyId}가 플레이어와 접촉! 전투를 시작합니다.");
+                BattleManager.Instance.StartBattle(enemyId);
             }
         }
     }

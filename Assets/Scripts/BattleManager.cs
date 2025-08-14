@@ -6,11 +6,19 @@ public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance { get; private set; }
 
-    [SerializeField] private string battleSceneName = "BattleScene"; // Unity Editor에서 설정할 전투 씬 이름
-    [SerializeField] private GameObject playerObject; // 플레이어 오브젝트 (움직임/입력 제어용)
-    [SerializeField] private Camera mainCamera; // 메인 카메라 (전환 시 비활성화용)
+    [SerializeField] private string battleSceneName = "BattleScene";
+    [SerializeField] private GameObject playerObject;
+    [SerializeField] private Camera mainCamera;
 
     private Scene currentMainScene;
+
+    // 전투 데이터
+    private string playerName;
+    private int playerCurrentHP;
+    private int playerMaxHP;
+    private string enemyName;
+    private int enemyCurrentHP;
+    private int enemyMaxHP;
 
     void Awake()
     {
@@ -21,73 +29,109 @@ public class BattleManager : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 씬 전환 시 파괴되지 않도록
+            DontDestroyOnLoad(gameObject);
         }
     }
 
-    public void StartBattle()
+    public void StartBattle(string enemyId)
     {
-        Debug.Log("전투 시작!");
-        currentMainScene = SceneManager.GetActiveScene(); // 현재 메인 씬 저장
-
-        // 씬의 모든 적 AI 비활성화
-        EnemyAI[] allEnemies = FindObjectsOfType<EnemyAI>();
-        foreach (EnemyAI enemy in allEnemies)
+        if (GameDataManager.Instance == null)
         {
-            enemy.SetBattleMode(true);
+            Debug.LogError("GameDataManager가 존재하지 않습니다.");
+            return;
         }
 
-        // 플레이어 오브젝트 비활성화 (움직임, 렌더링 등)
+        UnitStats player = GameDataManager.Instance.playerStats;
+        if (!GameDataManager.Instance.enemyStats.TryGetValue(enemyId, out UnitStats enemy))
+        {
+            Debug.LogError($"{enemyId}에 해당하는 적 데이터를 찾을 수 없습니다.");
+            return;
+        }
+
+        Debug.Log($"{player.unitName}와(과) {enemy.unitName}의 전투 시작!");
+        currentMainScene = SceneManager.GetActiveScene();
+
+        // GameDataManager로부터 이름과 HP 정보 설정
+        playerName = player.unitName;
+        playerMaxHP = player.maxHP;
+        playerCurrentHP = player.currentHP;
+        enemyName = enemy.unitName;
+        enemyMaxHP = enemy.maxHP;
+        enemyCurrentHP = enemy.currentHP;
+
+        EnemyAI[] allEnemies = FindObjectsOfType<EnemyAI>();
+        foreach (EnemyAI e in allEnemies)
+        {
+            e.SetBattleMode(true);
+        }
+
         if (playerObject != null)
         {
             playerObject.SetActive(false);
         }
-        // 메인 카메라 비활성화
         if (mainCamera != null)
         {
             mainCamera.gameObject.SetActive(false);
         }
 
-        // 전투 씬을 현재 씬에 추가적으로 로드
         SceneManager.LoadScene(battleSceneName, LoadSceneMode.Additive);
+        StartCoroutine(SetupBattleScene());
+    }
+
+    private IEnumerator SetupBattleScene()
+    {
+        while (!SceneManager.GetSceneByName(battleSceneName).isLoaded)
+        {
+            yield return null;
+        }
+
+        HPDisplay hpDisplay = FindObjectOfType<HPDisplay>();
+        if (hpDisplay != null)
+        {
+            hpDisplay.UpdatePlayerHP(playerName, playerCurrentHP, playerMaxHP);
+            hpDisplay.UpdateEnemyHP(enemyName, enemyCurrentHP, enemyMaxHP);
+        }
+        else
+        {
+            Debug.LogError("BattleScene에서 HPDisplay를 찾을 수 없습니다.");
+        }
     }
 
     public void EndBattle()
     {
         Debug.Log("전투 종료!");
-        // 전투 씬 언로드
         SceneManager.UnloadSceneAsync(battleSceneName);
 
-        // 플레이어 오브젝트 다시 활성화
         if (playerObject != null)
         {
             playerObject.SetActive(true);
         }
-        // 메인 카메라 다시 활성화
         if (mainCamera != null)
         {
             mainCamera.gameObject.SetActive(true);
         }
 
-        // 씬의 모든 적 AI 다시 활성화
         EnemyAI[] allEnemies = FindObjectsOfType<EnemyAI>();
         foreach (EnemyAI enemy in allEnemies)
         {
             enemy.SetBattleMode(false);
         }
         
-        // 원래 씬을 다시 활성 씬으로 설정 (선택 사항이지만 명확성을 위해)
         SceneManager.SetActiveScene(currentMainScene);
     }
 
     // 테스트용 (나중에 제거)
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B)) // B 키를 누르면 전투 시작
+        if (Input.GetKeyDown(KeyCode.B))
         {
-            StartBattle();
+            StartBattle("Enemy1"); // B 키를 누르면 Enemy1과 전투 시작
         }
-        if (Input.GetKeyDown(KeyCode.E)) // E 키를 누르면 전투 종료
+        if (Input.GetKeyDown(KeyCode.N)) // N 키를 누르면 Enemy2와 전투 시작
+        {
+            StartBattle("Enemy2");
+        }
+        if (Input.GetKeyDown(KeyCode.E))
         {
             EndBattle();
         }

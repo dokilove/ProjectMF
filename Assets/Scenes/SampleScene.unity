@@ -150,6 +150,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 572860926}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &169861141
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 169861143}
+  - component: {fileID: 169861142}
+  m_Layer: 0
+  m_Name: GameDataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &169861142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 169861141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 746cad212bb1563489222b696923f3e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerStats:
+    unitName: PlayerTM
+    maxHP: 192
+    currentHP: 168
+    attackPower: 11
+--- !u!4 &169861143
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 169861141}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 625.7704, y: 636.0706, z: -35.223568}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &172022079
 GameObject:
   m_ObjectHideFlags: 0
@@ -2577,6 +2626,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
+      propertyPath: enemyId
+      value: Enemy2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
       value: 
       objectReference: {fileID: 388641992}
@@ -2650,6 +2703,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
+      propertyPath: enemyId
+      value: Enemy1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
       value: 
       objectReference: {fileID: 1730592239}
@@ -2690,3 +2747,4 @@ SceneRoots:
   - {fileID: 8643400583794106879}
   - {fileID: 2017330806}
   - {fileID: 766765895}
+  - {fileID: 169861143}
