@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 public class BattleManager : MonoBehaviour
@@ -11,6 +12,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Camera mainCamera;
 
     private Scene currentMainScene;
+    private PlayerInputController playerInputController;
+    private GameObject dungeonEventSystem;
+    private BattleCameraController battleCameraController;
 
     // 전투 데이터
     private string playerName;
@@ -33,12 +37,26 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    public void StartBattle(string enemyId)
+    public void StartBattle(string enemyId, PlayerInputController controller)
     {
         if (GameDataManager.Instance == null)
         {
             Debug.LogError("GameDataManager가 존재하지 않습니다.");
             return;
+        }
+
+        this.playerInputController = controller;
+        if (playerInputController != null)
+        {
+            playerInputController.OnCancelEvent += HandleBattleCancel;
+            playerInputController.OnSubmitEvent += HandleBattleSubmit;
+        }
+
+        EventSystem currentEventSystem = FindObjectOfType<EventSystem>();
+        if (currentEventSystem != null)
+        {
+            dungeonEventSystem = currentEventSystem.gameObject;
+            dungeonEventSystem.SetActive(false);
         }
 
         UnitStats player = GameDataManager.Instance.playerStats;
@@ -51,7 +69,6 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"{player.unitName}와(과) {enemy.unitName}의 전투 시작!");
         currentMainScene = SceneManager.GetActiveScene();
 
-        // GameDataManager로부터 이름과 HP 정보 설정
         playerName = player.unitName;
         playerMaxHP = player.maxHP;
         playerCurrentHP = player.currentHP;
@@ -85,6 +102,18 @@ public class BattleManager : MonoBehaviour
             yield return null;
         }
 
+        battleCameraController = FindObjectOfType<BattleCameraController>();
+        if (battleCameraController == null)
+        {
+            Debug.LogError("BattleScene에 BattleCameraController가 없습니다.");
+        }
+
+        if(playerInputController != null)
+        {
+            playerInputController.EnableBattleCommandControls();
+            if(battleCameraController != null) battleCameraController.FocusOnEnemy();
+        }
+
         HPDisplay hpDisplay = FindObjectOfType<HPDisplay>();
         if (hpDisplay != null)
         {
@@ -100,7 +129,21 @@ public class BattleManager : MonoBehaviour
     public void EndBattle()
     {
         Debug.Log("전투 종료!");
+        
+        if(playerInputController != null)
+        {
+            playerInputController.OnCancelEvent -= HandleBattleCancel;
+            playerInputController.OnSubmitEvent -= HandleBattleSubmit;
+            playerInputController.EnableDungeonControls();
+        }
+
+        battleCameraController = null; // 참조 해제
         SceneManager.UnloadSceneAsync(battleSceneName);
+
+        if (dungeonEventSystem != null)
+        {
+            dungeonEventSystem.SetActive(true);
+        }
 
         if (playerObject != null)
         {
@@ -120,20 +163,39 @@ public class BattleManager : MonoBehaviour
         SceneManager.SetActiveScene(currentMainScene);
     }
 
-    // 테스트용 (나중에 제거)
+    private void HandleBattleCancel()
+    {
+        Debug.Log("전투 취소! 던전으로 돌아갑니다.");
+        EndBattle();
+    }
+
+    private void HandleBattleSubmit()
+    {
+        Debug.Log("커맨드 입력! 액션 페이즈로 전환합니다.");
+        if (playerInputController != null)
+        {
+            playerInputController.EnableBattleActionControls();
+            if(battleCameraController != null) battleCameraController.FocusOnPlayer();
+        }
+    }
+
+    // 테스트용 코드는 PlayerInputController가 필요하므로 일단 주석 처리합니다.
+    /*
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
-            StartBattle("Enemy1"); // B 키를 누르면 Enemy1과 전투 시작
+            // 테스트를 위해서는 PlayerInputController 인스턴스를 찾아 전달해야 합니다.
+            // StartBattle("Enemy1", FindObjectOfType<PlayerInputController>()); 
         }
-        if (Input.GetKeyDown(KeyCode.N)) // N 키를 누르면 Enemy2와 전투 시작
+        if (Input.GetKeyDown(KeyCode.N)) 
         {
-            StartBattle("Enemy2");
+            // StartBattle("Enemy2", FindObjectOfType<PlayerInputController>());
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
             EndBattle();
         }
     }
+    */
 }

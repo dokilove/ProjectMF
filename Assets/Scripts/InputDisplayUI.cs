@@ -1,28 +1,28 @@
 using UnityEngine;
-using TMPro; // TextMeshPro¸¦ »ç¿ëÇÏ±â À§ÇØ ÇÊ¿äÇÕ´Ï´Ù.
+using TMPro;
 
 public class InputDisplayUI : MonoBehaviour
 {
-    [Header("ÇÊ¼ö ÄÄÆ÷³ÍÆ®")]
-    [Tooltip("ÀÔ·ÂÀ» ¹Ş¾Æ¿Ã PlayerInputController ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.")]
+    [Header("í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸")]
+    [Tooltip("ì…ë ¥ì„ ë°›ì•„ì˜¬ PlayerInputController ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerInputController inputController;
 
-    [Header("UI ¼³Á¤")]
-    [Tooltip("»ı¼ºÇÒ ÅØ½ºÆ® UIÀÇ ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+    [Header("UI ì„¤ì •")]
+    [Tooltip("ë¡œê·¸ í…ìŠ¤íŠ¸ UIì˜ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
     public GameObject textPrefab;
 
-    [Tooltip("»ı¼ºµÈ ÅØ½ºÆ® UI°¡ À§Ä¡ÇÒ ºÎ¸ğ ÄÁÅ×ÀÌ³ÊÀÔ´Ï´Ù. (Vertical Layout GroupÀÌ ÀÖ´Â Panel)")]
+    [Tooltip("ë¡œê·¸ í…ìŠ¤íŠ¸ UIê°€ ìœ„ì¹˜í•  ë¶€ëª¨ ì»¨í…Œì´ë„ˆì…ë‹ˆë‹¤. (Vertical Layout Groupì´ ìˆëŠ” Panel)")]
     public Transform container;
 
-    [Tooltip("ÅØ½ºÆ®°¡ È­¸é¿¡ Ç¥½ÃµÉ ½Ã°£(ÃÊ)ÀÔ´Ï´Ù.")]
+    [Tooltip("í…ìŠ¤íŠ¸ê°€ í™”ë©´ì— í‘œì‹œë  ì‹œê°„(ì´ˆ)ì…ë‹ˆë‹¤.")]
     public float lifeTime = 0.5f;
 
     private void OnEnable()
     {
         if (inputController != null)
         {
-            // PlayerInputControllerÀÇ ÀÌº¥Æ®°¡ ¹ß»ıÇÒ ¶§¸¶´Ù ShowInputLog ¸Ş¼Òµå¸¦ È£ÃâÇÏµµ·Ï µî·Ï
-            inputController.OnActionTriggered += ShowInputLog;
+            // PlayerInputControllerì˜ ìƒˆ ì´ë²¤íŠ¸ì— êµ¬ë…í•©ë‹ˆë‹¤.
+            inputController.OnActionForDisplay += ShowInputLog;
         }
     }
 
@@ -30,8 +30,8 @@ public class InputDisplayUI : MonoBehaviour
     {
         if (inputController != null)
         {
-            // ½ºÅ©¸³Æ®°¡ ºñÈ°¼ºÈ­µÉ ¶§ ÀÌº¥Æ® µî·Ï ÇØÁ¦ (¸Ş¸ğ¸® ´©¼ö ¹æÁö)
-            inputController.OnActionTriggered -= ShowInputLog;
+            // ìŠ¤í¬ë¦½íŠ¸ê°€ ë¹„í™œì„±í™”ë  ë•Œ ì´ë²¤íŠ¸ êµ¬ë… í•´ì œ (ë©”ëª¨ë¦¬ ëˆ„ìˆ˜ ë°©ì§€)
+            inputController.OnActionForDisplay -= ShowInputLog;
         }
     }
 
@@ -39,17 +39,17 @@ public class InputDisplayUI : MonoBehaviour
     {
         if (textPrefab == null || container == null) return;
 
-        // 1. ÇÁ¸®ÆÕÀ¸·ÎºÎÅÍ »õ·Î¿î ÅØ½ºÆ® °ÔÀÓ ¿ÀºêÁ§Æ®¸¦ »ı¼ºÇÏ°í, ÄÁÅ×ÀÌ³ÊÀÇ ÀÚ½ÄÀ¸·Î ¸¸µì´Ï´Ù.
+        // 1. í”„ë¦¬íŒ¹ìœ¼ë¡œë¶€í„° ìƒˆë¡œìš´ ë¡œê·¸ í…ìŠ¤íŠ¸ ê²Œì„ ì˜¤ë¸Œì íŠ¸ë¥¼ ìƒì„±í•˜ê³ , ì»¨í…Œì´ë„ˆì˜ ìì‹ìœ¼ë¡œ ë„£ìŠµë‹ˆë‹¤.
         GameObject newLogText = Instantiate(textPrefab, container);
 
-        // 2. »ı¼ºµÈ ¿ÀºêÁ§Æ®¿¡¼­ TextMeshProUGUI ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿Í ÅØ½ºÆ®¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+        // 2. ìƒì„±ëœ ì˜¤ë¸Œì íŠ¸ì—ì„œ TextMeshProUGUI ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì™€ í…ìŠ¤íŠ¸ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
         var textComponent = newLogText.GetComponent<TextMeshProUGUI>();
         if (textComponent != null)
         {
             textComponent.text = actionName;
         }
 
-        // 3. lifeTime(0.5ÃÊ) ÈÄ¿¡ »ı¼ºµÈ ÅØ½ºÆ® ¿ÀºêÁ§Æ®¸¦ ÆÄ±«ÇÕ´Ï´Ù.
+        // 3. lifeTime(0.5ì´ˆ) ì´í›„ì— ìƒì„±ëœ ë¡œê·¸ í…ìŠ¤íŠ¸ ì˜¤ë¸Œì íŠ¸ë¥¼ íŒŒê´´í•©ë‹ˆë‹¤.
         Destroy(newLogText, lifeTime);
     }
 }

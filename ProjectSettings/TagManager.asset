@@ -12,8 +12,6 @@ TagManager:
   - Water
   - UI
   - 
-  - Ground
-  - Obstacle
   - 
   - 
   - 
@@ -21,6 +19,8 @@ TagManager:
   - 
   - 
   - 
+  - Dungeon
+  - Battle
   - 
   - 
   - 

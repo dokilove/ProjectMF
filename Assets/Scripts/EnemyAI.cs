@@ -38,20 +38,20 @@ public class EnemyAI : MonoBehaviour
     public float colliderEnableDelay = 1.0f; // 전투 종료 후 Collider 활성화 지연 시간
 
     private bool isInBattle = false;
+    private bool isNavMeshAgentActive = true; // NavMeshAgent 활성화 상태 추적 변수
 
     void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
-        enemyCollider = GetComponent<Collider>(); // 적 오브젝트의 Collider 컴포넌트 가져오기
+        enemyCollider = GetComponent<Collider>();
         if (player == null)
         {
             player = GameObject.FindGameObjectWithTag("Player").transform;
         }
 
-        // 시야각 시각화용 게임오브젝트 및 컴포넌트 설정
         GameObject viewVisualizerObject = new GameObject("ViewVisualizer");
         viewVisualizerObject.transform.SetParent(transform, false);
-        viewVisualizerObject.transform.localPosition = new Vector3(0, 0.01f, 0); // 바닥에 겹치지 않게 살짝 띄움
+        viewVisualizerObject.transform.localPosition = new Vector3(0, 0.01f, 0);
         viewVisualizerObject.transform.localRotation = Quaternion.identity;
 
         viewMeshFilter = viewVisualizerObject.AddComponent<MeshFilter>();
@@ -70,7 +70,8 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        if (isInBattle) return; // 전투 중에는 AI 로직을 실행하지 않음
+        // NavMeshAgent가 활성화되어 있지 않으면 AI 로직을 실행하지 않음
+        if (!isNavMeshAgentActive || isInBattle) return;
 
         switch (currentState)
         {
@@ -97,7 +98,7 @@ public class EnemyAI : MonoBehaviour
     private void GoToStartPosition()
     {
         currentState = AIState.GoToStartPoint;
-        navMeshAgent.autoBraking = true; // 시작점에는 정확히 멈추도록 설정
+        navMeshAgent.autoBraking = true;
         if (waypoints != null && waypoints.Length > 0 && waypoints[0] != null)
         {
             navMeshAgent.SetDestination(waypoints[0].position);
@@ -106,11 +107,10 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleGoToStart()
     {
-        // 시작점에 가까워지면 순찰 시작
         if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.5f)
         {
             currentState = AIState.Patrolling;
-            navMeshAgent.autoBraking = false; // 순찰 중에는 부드럽게 돌도록 설정
+            navMeshAgent.autoBraking = false;
             GoToNextWaypoint();
         }
     }
@@ -126,8 +126,7 @@ public class EnemyAI : MonoBehaviour
             if (Vector3.Angle(transform.forward, directionToPlayer) < viewAngle / 2f)
             {
                 RaycastHit hit;
-                // 적의 눈 높이에서 플레이어의 위치로 레이캐스트를 실행합니다.
-                Vector3 eyePosition = transform.position + Vector3.up * 1.5f; // 예시 눈 높이
+                Vector3 eyePosition = transform.position + Vector3.up * 1.5f;
                 if (Physics.Raycast(eyePosition, player.position - eyePosition, out hit, detectionRadius))
                 {
                     if (hit.transform == player)
@@ -144,7 +143,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (player != null && Vector3.Distance(transform.position, player.position) > loseSightRadius)
         {
-            GoToStartPosition(); // 플레이어를 놓치면 다시 시작점으로 복귀
+            GoToStartPosition();
         }
     }
 
@@ -182,30 +181,26 @@ public class EnemyAI : MonoBehaviour
         isInBattle = inBattle;
         if (navMeshAgent != null)
         {
-            if (inBattle) // 전투 진입 시 즉시 비활성화
+            if (inBattle)
             {
+                isNavMeshAgentActive = false;
                 navMeshAgent.enabled = false;
             }
-            else // 전투 종료 시 지연 후 활성화
+            else
             {
                 StartCoroutine(EnableNavMeshAgentAfterDelay(colliderEnableDelay));
             }
         }
         if (enemyCollider != null)
         {
-            if (inBattle) // 전투 진입 시 즉시 비활성화
+            if (inBattle)
             {
                 enemyCollider.enabled = false;
             }
-            else // 전투 종료 시 지연 후 활성화
+            else
             {
                 StartCoroutine(EnableColliderAfterDelay(colliderEnableDelay));
             }
-        }
-        // 전투 모드 진입 시 현재 상태를 초기화하거나 특정 상태로 변경할 수 있습니다.
-        if (!inBattle) // 전투 종료 시
-        {
-            GoToStartPosition(); // 다시 순찰 시작점으로 돌아가도록 설정
         }
     }
 
@@ -215,6 +210,8 @@ public class EnemyAI : MonoBehaviour
         if (navMeshAgent != null)
         {
             navMeshAgent.enabled = true;
+            isNavMeshAgentActive = true; // NavMeshAgent가 활성화되었음을 알림
+            GoToStartPosition();
         }
     }
 
@@ -278,18 +275,24 @@ public class EnemyAI : MonoBehaviour
             if (currentState == AIState.Chasing && !isInBattle)
             {
                 Debug.Log($"{enemyId}가 플레이어와 접촉! 전투를 시작합니다.");
-                BattleManager.Instance.StartBattle(enemyId);
+                PlayerInputController controller = other.GetComponent<PlayerInputController>();
+                if (controller != null)
+                {
+                    BattleManager.Instance.StartBattle(enemyId, controller);
+                }
+                else
+                {
+                    Debug.LogError("Player에서 PlayerInputController를 찾을 수 없습니다.");
+                }
             }
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        // 감지 범위 그리기
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // 시야각 그리기
         Vector3 viewAngleA = DirFromAngle(-viewAngle / 2, false);
         Vector3 viewAngleB = DirFromAngle(viewAngle / 2, false);
         Gizmos.DrawLine(transform.position, transform.position + viewAngleA * detectionRadius);
@@ -298,7 +301,6 @@ public class EnemyAI : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, loseSightRadius);
 
-        // 웨이포인트 경로 그리기
         if (waypoints == null || waypoints.Length == 0) return;
 
         Gizmos.color = Color.cyan;

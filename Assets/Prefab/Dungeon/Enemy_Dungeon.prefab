@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6148885068530804230}
   - component: {fileID: 1672547691554032355}
   - component: {fileID: 7818465019855819842}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,8 +101,8 @@ GameObject:
   - component: {fileID: 5813539553759483815}
   - component: {fileID: 1485026475781197642}
   - component: {fileID: 7989399223067353162}
-  m_Layer: 0
-  m_Name: Enemy
+  m_Layer: 14
+  m_Name: Enemy_Dungeon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -212,6 +212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b604fd0456832444a8214b33d13d9e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyId: 
   player: {fileID: 0}
   detectionRadius: 10
   viewAngle: 60
@@ -223,6 +224,7 @@ MonoBehaviour:
   - {fileID: 0}
   viewVisualizerMaterial: {fileID: 2100000, guid: 5170dd2e82eec164cb0e64dd1b886f56, type: 2}
   viewMeshResolution: 10
+  colliderEnableDelay: 1
 --- !u!135 &1485026475781197642
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -280,7 +282,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 141787683636027839}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
