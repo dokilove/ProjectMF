@@ -184,6 +184,21 @@ MonoBehaviour:
     maxHP: 192
     currentHP: 168
     attackPower: 11
+  enemyDatabaseList:
+  - enemyId: Enemy_alpha
+    stats:
+      unitName: Alpha
+      maxHP: 80
+      currentHP: 80
+      attackPower: 20
+    battlePrefab: {fileID: 2484055279281000640, guid: 5fd57d8ae94d9904ab27862947c50a2a, type: 3}
+  - enemyId: Enemy_bravo
+    stats:
+      unitName: Bravo
+      maxHP: 120
+      currentHP: 120
+      attackPower: 10
+    battlePrefab: {fileID: 2484055279281000640, guid: 11cb59471ac587c49b1f233df641c3dc, type: 3}
 --- !u!4 &169861143
 Transform:
   m_ObjectHideFlags: 0
@@ -999,6 +1014,7 @@ MonoBehaviour:
   battleSceneName: BattleScene
   playerObject: {fileID: 1435130254}
   mainCamera: {fileID: 330585545}
+  playerBattlePrefab: {fileID: 7288632897982827583, guid: a179ca2bcde25764eaa03d1dcf9de180, type: 3}
 --- !u!4 &766765895
 Transform:
   m_ObjectHideFlags: 0
@@ -2180,7 +2196,7 @@ GameObject:
   - component: {fileID: 1979799540}
   m_Layer: 14
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -2357,7 +2373,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: enemyId
-      value: Enemy2
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
+      propertyPath: enemyGroupId
+      value: SlimeSwarm
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
@@ -2456,6 +2476,10 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 330585546}
+    - target: {fileID: 817212138732064384, guid: a6e920b31922b404695da81e11a68491, type: 3}
+      propertyPath: groundMask.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1191971767294793630, guid: a6e920b31922b404695da81e11a68491, type: 3}
       propertyPath: m_Layer
       value: 14
@@ -2519,7 +2543,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: enemyId
-      value: Enemy1
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
+      propertyPath: enemyGroupId
+      value: ForestAmbush
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: 'waypoints.Array.data[0]'

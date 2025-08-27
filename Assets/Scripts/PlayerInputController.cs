@@ -123,10 +123,19 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IDungeonActio
                 }
             }
 
-            if (closestEnemy != null && !string.IsNullOrEmpty(closestEnemy.enemyId))
+            if (closestEnemy != null)
             {
-                Debug.Log($"Starting battle with closest enemy: {closestEnemy.enemyId}");
-                BattleManager.Instance.StartBattle(closestEnemy.enemyId, this);
+                // 그룹 ID가 있으면 그룹 전투, 없으면 단일 전투 시작
+                if (!string.IsNullOrEmpty(closestEnemy.enemyGroupId))
+                {
+                    Debug.Log($"Starting group battle triggered by {closestEnemy.name}: {closestEnemy.enemyGroupId}");
+                    BattleManager.Instance.StartBattleByGroup(closestEnemy.enemyGroupId, this);
+                }
+                else if (!string.IsNullOrEmpty(closestEnemy.enemyId))
+                {
+                    Debug.Log($"Starting battle with closest enemy: {closestEnemy.enemyId}");
+                    BattleManager.Instance.StartBattle(closestEnemy.enemyId, this);
+                }
             }
         }
     }

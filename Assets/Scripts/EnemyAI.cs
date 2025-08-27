@@ -7,8 +7,10 @@ using System.Collections.Generic;
 public class EnemyAI : MonoBehaviour
 {
     [Header("식별자")]
-    [Tooltip("GameDataManager에 정의된 적 ID")]
+    [Tooltip("GameDataManager에 정의된 적 ID (단일 전투용)")]
     public string enemyId;
+    [Tooltip("GameDataManager에 정의된 적 그룹 ID (그룹 전투용)")]
+    public string enemyGroupId;
 
     public enum AIState { GoToStartPoint, Patrolling, Chasing }
     private AIState currentState;
@@ -29,6 +31,7 @@ public class EnemyAI : MonoBehaviour
     private int currentWaypointIndex = 0;
 
     [Header("시야각 시각화")]
+    public string viewVisualizerLayerName = "Dungeon";
     public Material viewVisualizerMaterial;
     public int viewMeshResolution = 10;
     private MeshFilter viewMeshFilter;
@@ -58,13 +61,19 @@ public class EnemyAI : MonoBehaviour
         MeshRenderer viewMeshRenderer = viewVisualizerObject.AddComponent<MeshRenderer>();
         viewMeshRenderer.material = viewVisualizerMaterial; 
 
+        // 시야각 시각화 오브젝트의 레이어를 설정합니다.
+        viewVisualizerObject.layer = LayerMask.NameToLayer(viewVisualizerLayerName);
+
         viewMesh = new Mesh();
         viewMesh.name = "View Mesh";
         viewMeshFilter.mesh = viewMesh;
     }
 
-    void Start()
+    IEnumerator Start()
     {
+        // NavMeshAgent가 NavMesh에 완전히 배치될 때까지 한 프레임을 기다립니다.
+        // 이는 "SetDestination can only be called on an active agent..." 오류를 방지합니다.
+        yield return null; 
         GoToStartPosition();
     }
 
@@ -274,15 +283,23 @@ public class EnemyAI : MonoBehaviour
         {
             if (currentState == AIState.Chasing && !isInBattle)
             {
-                Debug.Log($"{enemyId}가 플레이어와 접촉! 전투를 시작합니다.");
                 PlayerInputController controller = other.GetComponent<PlayerInputController>();
-                if (controller != null)
+                if (controller == null)
                 {
-                    BattleManager.Instance.StartBattle(enemyId, controller);
+                    Debug.LogError("Player에서 PlayerInputController를 찾을 수 없습니다.");
+                    return;
+                }
+
+                // 그룹 ID가 지정되어 있으면 그룹 전투를, 그렇지 않으면 단일 전투를 시작합니다.
+                if (!string.IsNullOrEmpty(enemyGroupId))
+                {
+                    Debug.Log($"'{enemyGroupId}' 그룹과의 전투를 시작합니다.");
+                    BattleManager.Instance.StartBattleByGroup(enemyGroupId, controller);
                 }
                 else
                 {
-                    Debug.LogError("Player에서 PlayerInputController를 찾을 수 없습니다.");
+                    Debug.Log($"'{enemyId}'(와)의 단일 전투를 시작합니다.");
+                    BattleManager.Instance.StartBattle(enemyId, controller);
                 }
             }
         }

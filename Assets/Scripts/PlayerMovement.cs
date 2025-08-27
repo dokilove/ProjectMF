@@ -20,8 +20,6 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     [Tooltip("바닥 감지 원의 반지름입니다.")]
     public float groundDistance = 0.2f;
-    [Tooltip("바닥으로 인식할 레이어입니다.")]
-    public LayerMask groundMask;
 
     private Rigidbody rb;
     private bool isGrounded;
@@ -49,7 +47,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        // 바닥 감지를 레이어 마스크 대신 태그로 변경합니다.
+        isGrounded = false;
+        Collider[] colliders = Physics.OverlapSphere(groundCheck.position, groundDistance);
+        foreach (var collider in colliders)
+        {
+            if (collider.CompareTag("Ground"))
+            {
+                isGrounded = true;
+                break;
+            }
+        }
 
         // 이동 및 회전 로직
         Vector2 moveInput = inputController.MoveDirection;

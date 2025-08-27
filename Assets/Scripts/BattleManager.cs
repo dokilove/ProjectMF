@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using System.Collections;
+using System.Linq;
+using System.Collections.Generic;
 
 public class BattleManager : MonoBehaviour
 {
@@ -16,13 +18,12 @@ public class BattleManager : MonoBehaviour
     private GameObject dungeonEventSystem;
     private BattleCameraController battleCameraController;
 
+    [Header("Battle Prefabs")]
+    [SerializeField] private GameObject playerBattlePrefab;
+
     // 전투 데이터
-    private string playerName;
-    private int playerCurrentHP;
-    private int playerMaxHP;
-    private string enemyName;
-    private int enemyCurrentHP;
-    private int enemyMaxHP;
+    private UnitStats playerStats;
+    private List<EnemyData> currentEnemies = new List<EnemyData>(); // EnemyData로 변경
 
     void Awake()
     {
@@ -37,7 +38,24 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    // 단일 적과의 전투 시작
     public void StartBattle(string enemyId, PlayerInputController controller)
+    {
+        BeginBattle(new List<string> { enemyId }, controller);
+    }
+
+    // 적 그룹과의 전투 시작
+    public void StartBattleByGroup(string groupId, PlayerInputController controller)
+    {
+        if (GameDataManager.Instance == null || !GameDataManager.Instance.enemyGroups.TryGetValue(groupId, out List<string> enemyIds))
+        {
+            Debug.LogError($"GameDataManager에서 '{groupId}' 그룹을 찾을 수 없습니다.");
+            return;
+        }
+        BeginBattle(enemyIds, controller);
+    }
+
+    private void BeginBattle(List<string> enemyIds, PlayerInputController controller)
     {
         if (GameDataManager.Instance == null)
         {
@@ -59,23 +77,43 @@ public class BattleManager : MonoBehaviour
             dungeonEventSystem.SetActive(false);
         }
 
-        UnitStats player = GameDataManager.Instance.playerStats;
-        if (!GameDataManager.Instance.enemyStats.TryGetValue(enemyId, out UnitStats enemy))
+        // 플레이어 및 적 데이터 설정
+        playerStats = GameDataManager.Instance.playerStats;
+        currentEnemies.Clear();
+        foreach (string id in enemyIds)
         {
-            Debug.LogError($"{enemyId}에 해당하는 적 데이터를 찾을 수 없습니다.");
+            if (GameDataManager.Instance.enemyDatabase.TryGetValue(id, out EnemyData enemyData))
+            {
+                // 원본 데이터를 수정하지 않도록 복사본을 만듭니다.
+                EnemyData battleInstance = new EnemyData
+                {
+                    enemyId = enemyData.enemyId,
+                    battlePrefab = enemyData.battlePrefab,
+                    stats = new UnitStats {
+                        unitName = enemyData.stats.unitName,
+                        maxHP = enemyData.stats.maxHP,
+                        currentHP = enemyData.stats.currentHP,
+                        attackPower = enemyData.stats.attackPower
+                    }
+                };
+                currentEnemies.Add(battleInstance);
+            }
+            else
+            {
+                Debug.LogWarning($"'{id}' ID를 가진 적을 찾을 수 없습니다.");
+            }
+        }
+
+        if (currentEnemies.Count == 0)
+        {
+            Debug.LogError("전투를 시작할 적이 없습니다.");
             return;
         }
 
-        Debug.Log($"{player.unitName}와(과) {enemy.unitName}의 전투 시작!");
+        Debug.Log("전투 시작!");
         currentMainScene = SceneManager.GetActiveScene();
 
-        playerName = player.unitName;
-        playerMaxHP = player.maxHP;
-        playerCurrentHP = player.currentHP;
-        enemyName = enemy.unitName;
-        enemyMaxHP = enemy.maxHP;
-        enemyCurrentHP = enemy.currentHP;
-
+        // 던전 오브젝트 비활성화
         EnemyAI[] allEnemies = FindObjectsOfType<EnemyAI>();
         foreach (EnemyAI e in allEnemies)
         {
@@ -91,6 +129,7 @@ public class BattleManager : MonoBehaviour
             mainCamera.gameObject.SetActive(false);
         }
 
+        // 배틀 씬 로드
         SceneManager.LoadScene(battleSceneName, LoadSceneMode.Additive);
         StartCoroutine(SetupBattleScene());
     }
@@ -102,6 +141,56 @@ public class BattleManager : MonoBehaviour
             yield return null;
         }
 
+        // 생성된 오브젝트들이 BattleScene에 속하도록 BattleScene을 활성화합니다.
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(battleSceneName));
+
+        Battlefield battlefield = FindObjectOfType<Battlefield>();
+        if (battlefield == null)
+        {
+            Debug.LogError("BattleScene에 Battlefield.cs 컴포넌트가 존재하지 않습니다!");
+            yield break; // 코루틴 중단
+        }
+
+        // 캐릭터 생성
+        if (playerBattlePrefab != null && battlefield.playerSpawnPoint != null)
+        {
+            Instantiate(playerBattlePrefab, battlefield.playerSpawnPoint.position, battlefield.playerSpawnPoint.rotation);
+        }
+        else
+        {
+            Debug.LogError("플레이어 프리팹 또는 스폰 위치가 Battlefield에 설정되지 않았습니다.");
+        }
+
+        // 적 그룹을 중앙에 맞춰서 생성합니다.
+        if (battlefield.enemySpawnCenter != null)
+        {
+            int enemyCount = currentEnemies.Count;
+            Vector3 centerPoint = battlefield.enemySpawnCenter.position;
+            Vector3 offset = battlefield.spawnOffset;
+
+            // 전체 포메이션의 시작점을 계산하여 그룹이 중앙에 오도록 합니다.
+            Vector3 startPosition = centerPoint - (offset * (enemyCount - 1)) / 2f;
+
+            for (int i = 0; i < enemyCount; i++)
+            {
+                Vector3 spawnPosition = startPosition + (offset * i);
+                EnemyData enemyToSpawn = currentEnemies[i];
+                if (enemyToSpawn.battlePrefab != null)
+                {
+                    // 생성 시 방향은 중앙 스폰 포인트의 방향을 따르도록 합니다.
+                    Instantiate(enemyToSpawn.battlePrefab, spawnPosition, battlefield.enemySpawnCenter.rotation);
+                }
+                else
+                {
+                    Debug.LogError($"{enemyToSpawn.enemyId}의 battlePrefab이 GameDataManager에 설정되지 않았습니다.");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("적 스폰 중앙 위치가 Battlefield에 설정되지 않았습니다.");
+        }
+
         battleCameraController = FindObjectOfType<BattleCameraController>();
         if (battleCameraController == null)
         {
@@ -111,14 +200,15 @@ public class BattleManager : MonoBehaviour
         if(playerInputController != null)
         {
             playerInputController.EnableBattleCommandControls();
-            if(battleCameraController != null) battleCameraController.FocusOnEnemy();
+            if(battleCameraController != null) battleCameraController.FocusOnEnemy(); // TODO: 여러 적 포커싱 로직 필요
         }
 
         HPDisplay hpDisplay = FindObjectOfType<HPDisplay>();
         if (hpDisplay != null)
         {
-            hpDisplay.UpdatePlayerHP(playerName, playerCurrentHP, playerMaxHP);
-            hpDisplay.UpdateEnemyHP(enemyName, enemyCurrentHP, enemyMaxHP);
+            hpDisplay.UpdatePlayerHP(playerStats.unitName, playerStats.currentHP, playerStats.maxHP);
+            // EnemyData 리스트에서 UnitStats 리스트를 추출하여 전달
+            hpDisplay.UpdateEnemyHP(currentEnemies.Select(e => e.stats).ToList());
         }
         else
         {
