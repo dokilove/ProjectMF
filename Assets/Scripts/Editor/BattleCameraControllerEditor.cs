@@ -6,28 +6,31 @@ public class BattleCameraControllerEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        // 기본 인스펙터를 그립니다.
         DrawDefaultInspector();
 
         BattleCameraController controller = (BattleCameraController)target;
 
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("버튼을 누르면 카메라의 위치/회전이 변경되고, \n렌즈 시프트가 적용된 최종 모습은 카메라 프리뷰 창에 표시됩니다.", MessageType.Info);
+        EditorGUILayout.HelpBox("아래 버튼으로 각 전투 단계의 카메라 뷰를 미리 볼 수 있습니다.", MessageType.Info);
+        
+        EditorGUILayout.LabelField("Camera Previews", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Focus on Enemy (Preview)"))
+        if (GUILayout.Button("Command View"))
         {
-            // 에디터에서 카메라 프리뷰를 갱신합니다.
             controller.UpdatePreviewInEditor(BattleCameraController.CameraState.CommandFocus);
-            // 씬 뷰를 업데이트하여 변경사항을 즉시 반영합니다.
             SceneView.RepaintAll();
         }
 
-        if (GUILayout.Button("Focus on Player (Preview)"))
+        if (GUILayout.Button("Selection View"))
         {
-            // 에디터에서 카메라 프리뷰를 갱신합니다.
+            controller.UpdatePreviewInEditor(BattleCameraController.CameraState.SelectionFocus);
+            SceneView.RepaintAll();
+        }
+
+        if (GUILayout.Button("Action View"))
+        {
             controller.UpdatePreviewInEditor(BattleCameraController.CameraState.ActionFocus);
-            // 씬 뷰를 업데이트하여 변경사항을 즉시 반영합니다.
             SceneView.RepaintAll();
         }
 

@@ -99,7 +99,7 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""Walk"",
@@ -461,6 +461,15 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Navigate"",
+                    ""type"": ""Value"",
+                    ""id"": ""83ae9c3c-f83a-4d32-889a-878176e23dea"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -529,6 +538,193 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""Cancel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7556d1e8-7d8b-4639-9481-a2939434cba9"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1f067376-de85-435e-adf0-63d2e37675f7"",
+                    ""path"": ""<XInputController>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""4b181d07-5a92-4d9a-826d-a64aeb1444e4"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""7a28c9ae-9d7b-4a5f-b2e2-0f3efacb29d6"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""b287514b-c0e9-432b-b709-317c172b425c"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""e669e3c1-24da-4737-bb14-08128b60ed40"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""87cf3227-c36a-48ae-9f6a-1064ec48e4db"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""de57c9f7-3f91-487f-bf8d-5649d28d6aeb"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""f00ee38f-f54c-4a68-b4ed-2344b2bde8bc"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""b91e785d-63c6-4c1a-a344-35bf19926eb8"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""e7146fea-84ba-4101-976f-9c7b051138d8"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""4dde21f9-36de-4e45-9f25-084a8d212b15"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""e431d8e5-53db-4b1b-8372-c7a33729325f"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""72da4cf3-0523-4df6-a1b1-9b4760438d13"",
+                    ""path"": ""<XInputController>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""24a8a9b8-cdcc-439f-b7ed-69a91c0fd38b"",
+                    ""path"": ""<XInputController>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""261020aa-fc3d-4e85-b4d3-ba50882b223e"",
+                    ""path"": ""<XInputController>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""18df9223-9fe5-467e-b7b0-0fee8bc94251"",
+                    ""path"": ""<XInputController>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Navigate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -558,6 +754,15 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""Pull"",
                     ""type"": ""Button"",
                     ""id"": ""746058b0-5b85-4d1b-b053-4637a5843c0f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""20946833-7b90-49c0-b1f9-b0cab837ddf8"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -645,7 +850,7 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""90aca3ee-0653-48ae-9687-c1aa9de26c50"",
-                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -656,11 +861,44 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""5d42c9f0-6621-4b37-a893-c4d722bcbfac"",
-                    ""path"": ""<XInputController>/buttonEast"",
+                    ""path"": ""<XInputController>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Pull"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8aca36af-9893-46fa-9088-fb4cd6f20fd3"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3da6c1c0-32a2-4503-93e0-86cf8b0a0105"",
+                    ""path"": ""<XInputController>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""08da64f6-0412-45ea-acaf-8aa3ed8e9e0c"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -707,11 +945,13 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
         m_Battle_Command = asset.FindActionMap("Battle_Command", throwIfNotFound: true);
         m_Battle_Command_Submit = m_Battle_Command.FindAction("Submit", throwIfNotFound: true);
         m_Battle_Command_Cancel = m_Battle_Command.FindAction("Cancel", throwIfNotFound: true);
+        m_Battle_Command_Navigate = m_Battle_Command.FindAction("Navigate", throwIfNotFound: true);
         // Battle_Action
         m_Battle_Action = asset.FindActionMap("Battle_Action", throwIfNotFound: true);
         m_Battle_Action_Attack = m_Battle_Action.FindAction("Attack", throwIfNotFound: true);
         m_Battle_Action_Dodge = m_Battle_Action.FindAction("Dodge", throwIfNotFound: true);
         m_Battle_Action_Pull = m_Battle_Action.FindAction("Pull", throwIfNotFound: true);
+        m_Battle_Action_Cancel = m_Battle_Action.FindAction("Cancel", throwIfNotFound: true);
     }
 
     ~@Player_Actions()
@@ -925,6 +1165,7 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
     private List<IBattle_CommandActions> m_Battle_CommandActionsCallbackInterfaces = new List<IBattle_CommandActions>();
     private readonly InputAction m_Battle_Command_Submit;
     private readonly InputAction m_Battle_Command_Cancel;
+    private readonly InputAction m_Battle_Command_Navigate;
     /// <summary>
     /// Provides access to input actions defined in input action map "Battle_Command".
     /// </summary>
@@ -944,6 +1185,10 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Battle_Command/Cancel".
         /// </summary>
         public InputAction @Cancel => m_Wrapper.m_Battle_Command_Cancel;
+        /// <summary>
+        /// Provides access to the underlying input action "Battle_Command/Navigate".
+        /// </summary>
+        public InputAction @Navigate => m_Wrapper.m_Battle_Command_Navigate;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -976,6 +1221,9 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
             @Cancel.started += instance.OnCancel;
             @Cancel.performed += instance.OnCancel;
             @Cancel.canceled += instance.OnCancel;
+            @Navigate.started += instance.OnNavigate;
+            @Navigate.performed += instance.OnNavigate;
+            @Navigate.canceled += instance.OnNavigate;
         }
 
         /// <summary>
@@ -993,6 +1241,9 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
             @Cancel.started -= instance.OnCancel;
             @Cancel.performed -= instance.OnCancel;
             @Cancel.canceled -= instance.OnCancel;
+            @Navigate.started -= instance.OnNavigate;
+            @Navigate.performed -= instance.OnNavigate;
+            @Navigate.canceled -= instance.OnNavigate;
         }
 
         /// <summary>
@@ -1033,6 +1284,7 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Battle_Action_Attack;
     private readonly InputAction m_Battle_Action_Dodge;
     private readonly InputAction m_Battle_Action_Pull;
+    private readonly InputAction m_Battle_Action_Cancel;
     /// <summary>
     /// Provides access to input actions defined in input action map "Battle_Action".
     /// </summary>
@@ -1056,6 +1308,10 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Battle_Action/Pull".
         /// </summary>
         public InputAction @Pull => m_Wrapper.m_Battle_Action_Pull;
+        /// <summary>
+        /// Provides access to the underlying input action "Battle_Action/Cancel".
+        /// </summary>
+        public InputAction @Cancel => m_Wrapper.m_Battle_Action_Cancel;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1091,6 +1347,9 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
             @Pull.started += instance.OnPull;
             @Pull.performed += instance.OnPull;
             @Pull.canceled += instance.OnPull;
+            @Cancel.started += instance.OnCancel;
+            @Cancel.performed += instance.OnCancel;
+            @Cancel.canceled += instance.OnCancel;
         }
 
         /// <summary>
@@ -1111,6 +1370,9 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
             @Pull.started -= instance.OnPull;
             @Pull.performed -= instance.OnPull;
             @Pull.canceled -= instance.OnPull;
+            @Cancel.started -= instance.OnCancel;
+            @Cancel.performed -= instance.OnCancel;
+            @Cancel.canceled -= instance.OnCancel;
         }
 
         /// <summary>
@@ -1227,6 +1489,13 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCancel(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Navigate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNavigate(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Battle_Action" which allows adding and removing callbacks.
@@ -1256,5 +1525,12 @@ public partial class @Player_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPull(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Cancel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCancel(InputAction.CallbackContext context);
     }
 }

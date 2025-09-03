@@ -15,9 +15,15 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IDungeonActio
     // Battle Actions - 메소드와의 이름 충돌을 피하기 위해 이벤트 이름 변경
     public event Action OnSubmitEvent;
     public event Action OnCancelEvent;
+    public event Action OnActionCancelEvent; // 액션 페이즈 취소 이벤트
+    public event Action<Vector2> OnNavigateEvent; // 방향키 입력을 위한 이벤트
     public event Action OnBattleAttackEvent;
     public event Action OnDodgeEvent;
     public event Action OnPullEvent;
+
+    // 입력 상태 플래그
+    private bool isNavigateReady = true;
+    private const float AXIS_THRESHOLD = 0.5f; // 스틱 입력 감지 임계값
 
     // UI 표시용 통합 이벤트
     public event Action<string> OnActionForDisplay;
@@ -141,6 +147,30 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IDungeonActio
     }
 
     // --- Battle_Command Actions 콜백 ---
+    public void OnNavigate(InputAction.CallbackContext context)
+    {
+        Vector2 direction = context.ReadValue<Vector2>();
+
+        if (Mathf.Abs(direction.x) > AXIS_THRESHOLD)
+        {
+            if (isNavigateReady)
+            {
+                // 이벤트를 한 번만 발생시킵니다.
+                OnNavigateEvent?.Invoke(new Vector2(Mathf.Sign(direction.x), 0));
+                OnActionForDisplay?.Invoke($"Navigate: {direction}");
+                Debug.Log($"Navigate Action Triggered with {direction}");
+                
+                // 스틱을 놓을 때까지 다시 입력되지 않도록 플래그를 설정합니다.
+                isNavigateReady = false;
+            }
+        }
+        else
+        {
+            // 스틱이 중앙으로 돌아오면 다시 입력받을 준비를 합니다.
+            isNavigateReady = true;
+        }
+    }
+
     public void OnSubmit(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -170,6 +200,17 @@ public class PlayerInputController : MonoBehaviour, Player_Actions.IDungeonActio
             OnBattleAttackEvent?.Invoke();
             OnActionForDisplay?.Invoke("Battle Attack");
             Debug.Log("Battle Action: Attack Triggered");
+        }
+    }
+
+    // Battle_Action의 Cancel 명시적 구현
+    void Player_Actions.IBattle_ActionActions.OnCancel(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnActionCancelEvent?.Invoke();
+            OnActionForDisplay?.Invoke("Action Cancel");
+            Debug.Log("Battle Action: Cancel Triggered");
         }
     }
 

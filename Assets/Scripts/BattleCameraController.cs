@@ -3,7 +3,7 @@ using UnityEngine;
 [ExecuteAlways] // 에디터 모드에서도 실행되도록 설정
 public class BattleCameraController : MonoBehaviour
 {
-    public enum CameraState { Idle, CommandFocus, ActionFocus }
+    public enum CameraState { Idle, CommandFocus, SelectionFocus, ActionFocus }
     private CameraState currentState = CameraState.Idle;
     private Camera battleCamera;
 
@@ -21,6 +21,14 @@ public class BattleCameraController : MonoBehaviour
     public float enemyLookAtHeight = 1.5f;
     [Tooltip("화면 중심 이동 (Vanishing Point Offset)")]
     public Vector2 commandLensShift = Vector2.zero;
+
+    [Header("Selection 상태 설정")]
+    [Tooltip("플레이어로부터의 상대 위치")]
+    public Vector3 selectionStateLocalOffset = new Vector3(1, 2, -5);
+    [Tooltip("플레이어가 바라보이는 높이(Y) 오프셋")]
+    public float selectionLookAtHeight = 1.5f;
+    [Tooltip("화면 중심 이동 (Vanishing Point Offset)")]
+    public Vector2 selectionLensShift = Vector2.zero;
 
     [Header("Action 상태 설정")]
     [Tooltip("플레이어로부터의 상대 위치")]
@@ -56,6 +64,12 @@ public class BattleCameraController : MonoBehaviour
                 if (enemyTarget == null) return;
                 HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, enemyLookAtHeight, true);
                 targetLensShift = commandLensShift;
+                break;
+
+            case CameraState.SelectionFocus:
+                if (playerTarget == null) return; // 플레이어 타겟 사용
+                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, selectionLookAtHeight, true);
+                targetLensShift = selectionLensShift;
                 break;
 
             case CameraState.ActionFocus:
@@ -103,6 +117,11 @@ public class BattleCameraController : MonoBehaviour
                 HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, enemyLookAtHeight, false);
                 ApplyVanishingPointOffset(commandLensShift, false);
                 break;
+            case CameraState.SelectionFocus:
+                if (playerTarget == null) { Debug.LogWarning("Player Target이 설정되지 않았습니다."); return; }
+                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, selectionLookAtHeight, false);
+                ApplyVanishingPointOffset(selectionLensShift, false);
+                break;
             case CameraState.ActionFocus:
                 if (playerTarget == null) { Debug.LogWarning("Player Target이 설정되지 않았습니다."); return; }
                 HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, playerLookAtHeight, false);
@@ -121,6 +140,18 @@ public class BattleCameraController : MonoBehaviour
         currentState = CameraState.CommandFocus;
     }
 
+    public void FocusForSelection()
+    {
+        currentState = CameraState.SelectionFocus;
+    }
+
+    // BattleManager에서 호출하여 선택된 적을 타겟으로 설정합니다.
+    public void FocusOnTarget(Transform newTarget)
+    {
+        enemyTarget = newTarget;
+        currentState = CameraState.CommandFocus;
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (enemyTarget != null)
@@ -133,6 +164,13 @@ public class BattleCameraController : MonoBehaviour
 
         if (playerTarget != null)
         {
+            // Selection Gizmo
+            Gizmos.color = Color.yellow; 
+            Vector3 selectionCamPos = playerTarget.position + playerTarget.right * selectionStateLocalOffset.x + playerTarget.up * selectionStateLocalOffset.y + playerTarget.forward * selectionStateLocalOffset.z;
+            Vector3 selectionLookAtPos = playerTarget.position + Vector3.up * selectionLookAtHeight;
+            DrawCameraGizmo(selectionCamPos, selectionLookAtPos);
+
+            // Action Gizmo
             Gizmos.color = Color.green;
             Vector3 actionCamPos = playerTarget.position + playerTarget.right * actionStateLocalOffset.x + playerTarget.up * actionStateLocalOffset.y + playerTarget.forward * actionStateLocalOffset.z;
             Vector3 playerLookAtPos = playerTarget.position + Vector3.up * playerLookAtHeight;

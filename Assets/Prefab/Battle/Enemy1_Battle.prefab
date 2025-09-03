@@ -182,6 +182,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1349974498290129537}
+  - component: {fileID: 5065921998834737646}
   m_Layer: 15
   m_Name: Enemy1_Battle
   m_TagString: Untagged
@@ -205,6 +206,21 @@ Transform:
   - {fileID: 1918497310285767075}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5065921998834737646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2484055279281000640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3251342fe9a35fc44a901728309b8fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterRenderer: {fileID: 1054440675117114747}
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &3594430070611296694
 GameObject:
   m_ObjectHideFlags: 0
