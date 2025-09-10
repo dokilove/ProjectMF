@@ -1037,7 +1037,8 @@ MonoBehaviour:
   selectionLensShift: {x: -0.6, y: 0}
   actionStateLocalOffset: {x: -6, y: 3, z: -2}
   playerLookAtHeight: 1.5
-  actionLensShift: {x: -0.6, y: 0}
+  actionLensShift: {x: -0.1, y: 0}
+  currentLookAtPoint: {x: 0, y: 0, z: 0}
 --- !u!1 &970680130
 GameObject:
   m_ObjectHideFlags: 0

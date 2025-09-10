@@ -9,6 +9,7 @@ public class UnitStats
     public int maxHP;
     public int currentHP;
     public int attackPower;
+    public float moveSpeed; // 이동 속도 추가
     // 필요에 따라 방어력, 속도 등 다른 능력치 추가 가능
 }
 
@@ -19,6 +20,14 @@ public class EnemyData
     public string enemyId;
     public UnitStats stats;
     public GameObject battlePrefab; // 전투 씬에서 생성될 프리팹
+}
+
+// 적 그룹 구성을 위한 클래스
+[System.Serializable]
+public class EnemyGroup
+{
+    public string groupId;
+    public List<string> enemyIds;
 }
 
 public class GameDataManager : MonoBehaviour
@@ -34,7 +43,9 @@ public class GameDataManager : MonoBehaviour
     public Dictionary<string, EnemyData> enemyDatabase = new Dictionary<string, EnemyData>(); // 실제 게임에서 사용할 딕셔너리
 
     [Header("적 그룹 정보")]
-    public Dictionary<string, List<string>> enemyGroups = new Dictionary<string, List<string>>();
+    [Tooltip("인스펙터에서 적 그룹을 설정합니다.")]
+    public List<EnemyGroup> enemyGroupSettings; // 인스펙터에서 설정할 리스트
+    public Dictionary<string, List<string>> enemyGroups = new Dictionary<string, List<string>>(); // 실제 게임에서 사용할 딕셔너리
 
     void Awake()
     {
@@ -60,7 +71,8 @@ public class GameDataManager : MonoBehaviour
                 unitName = "Player",
                 maxHP = 100,
                 currentHP = 100,
-                attackPower = 15
+                attackPower = 15,
+                moveSpeed = 3.0f // 플레이어 기본 이동 속도 설정
             };
         }
 
@@ -74,10 +86,15 @@ public class GameDataManager : MonoBehaviour
             }
         }
 
-        // 적 그룹 데이터 초기화 (이 부분은 유지하거나, 다른 방식으로 설정할 수 있습니다)
+        // 인스펙터에서 설정된 리스트를 딕셔너리로 변환
         enemyGroups.Clear();
-        enemyGroups.Add("ForestAmbush", new List<string> { "Enemy_alpha", "Enemy_bravo" });
-        enemyGroups.Add("SlimeSwarm", new List<string> { "Enemy_alpha", "Enemy_alpha", "Enemy_bravo" });
+        foreach (EnemyGroup group in enemyGroupSettings)
+        {
+            if (!enemyGroups.ContainsKey(group.groupId))
+            {
+                enemyGroups.Add(group.groupId, group.enemyIds);
+            }
+        }
     }
 
     // 전투 등으로 인해 변경된 HP를 업데이트하는 함수 (예시)

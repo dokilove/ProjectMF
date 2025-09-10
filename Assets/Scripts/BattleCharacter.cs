@@ -8,9 +8,15 @@ public class BattleCharacter : MonoBehaviour
     public Vector3 OriginalPosition { get; private set; }
 
     [SerializeField] private Color selectedColor = Color.yellow;
+    private float currentMoveSpeed; // Action 페이즈에서의 이동 속도 (UnitStats에서 가져옴)
 
     private Renderer[] characterRenderers;
     private Color[] originalColors;
+    private Animator animator; // Animator 컴포넌트 추가
+
+    // 이동 관련
+    private bool isMoving = false;
+    private Transform targetToMoveTowards;
 
     void Awake()
     {
@@ -30,6 +36,21 @@ public class BattleCharacter : MonoBehaviour
                 originalColors[i] = characterRenderers[i].material.color;
             }
         }
+
+        animator = GetComponent<Animator>(); // Animator 컴포넌트 가져오기
+        if (animator == null)
+        {
+            Debug.LogWarning($"{gameObject.name}에 Animator 컴포넌트가 없습니다. 애니메이션을 재생할 수 없습니다.");
+        }
+    }
+
+    void Update()
+    {
+        if (isMoving && targetToMoveTowards != null)
+        {
+            // 목표를 향해 이동
+            transform.position = Vector3.MoveTowards(transform.position, targetToMoveTowards.position, currentMoveSpeed * Time.deltaTime);
+        }
     }
 
     // 캐릭터 데이터로 초기화
@@ -39,6 +60,22 @@ public class BattleCharacter : MonoBehaviour
         this.IsPlayer = isPlayer;
         this.OriginalPosition = originalPosition;
         this.name = $"{stats.unitName}_Battle"; // 씬에서 쉽게 식별하도록 이름 변경
+        this.currentMoveSpeed = stats.moveSpeed; // UnitStats에서 이동 속도 설정
+    }
+
+    // Action 페이즈 이동 시작
+    public void StartActionMovement(Transform target)
+    {
+        targetToMoveTowards = target;
+        isMoving = true;
+    }
+
+    // Action 페이즈 이동 중지 및 위치 리셋
+    public void StopActionMovement()
+    {
+        isMoving = false;
+        targetToMoveTowards = null;
+        transform.position = OriginalPosition; // 원래 위치로 복귀
     }
 
     // 캐릭터가 선택되었을 때 호출
@@ -63,6 +100,16 @@ public class BattleCharacter : MonoBehaviour
             {
                 characterRenderers[i].material.color = originalColors[i];
             }
+        }
+    }
+
+    // 공격 애니메이션 재생
+    public void PlayAttackAnimation()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack"); // "Attack" 트리거 파라미터를 설정하여 애니메이션 재생
+            Debug.Log($"{gameObject.name} - Attack Animation Triggered!");
         }
     }
 }

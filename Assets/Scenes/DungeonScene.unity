@@ -184,6 +184,7 @@ MonoBehaviour:
     maxHP: 192
     currentHP: 168
     attackPower: 11
+    moveSpeed: 0.4
   enemyDatabaseList:
   - enemyId: Enemy_alpha
     stats:
@@ -191,6 +192,7 @@ MonoBehaviour:
       maxHP: 80
       currentHP: 80
       attackPower: 20
+      moveSpeed: 0.6
     battlePrefab: {fileID: 2484055279281000640, guid: 5fd57d8ae94d9904ab27862947c50a2a, type: 3}
   - enemyId: Enemy_bravo
     stats:
@@ -198,7 +200,19 @@ MonoBehaviour:
       maxHP: 120
       currentHP: 120
       attackPower: 10
+      moveSpeed: 1.8
     battlePrefab: {fileID: 2484055279281000640, guid: 11cb59471ac587c49b1f233df641c3dc, type: 3}
+  enemyGroupSettings:
+  - groupId: ForestAmbush
+    enemyIds:
+    - Enemy_alpha
+    - Enemy_bravo
+    - Enemy_bravo
+  - groupId: SlimeSwarm
+    enemyIds:
+    - Enemy_bravo
+    - Enemy_alpha
+    - Enemy_bravo
 --- !u!4 &169861143
 Transform:
   m_ObjectHideFlags: 0
@@ -404,7 +418,7 @@ MonoBehaviour:
   targetOffset: {x: 0, y: 1.5, z: 0}
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 384
+    m_Bits: 0
 --- !u!1 &373953338
 GameObject:
   m_ObjectHideFlags: 0

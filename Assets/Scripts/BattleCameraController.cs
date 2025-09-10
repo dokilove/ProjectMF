@@ -39,6 +39,7 @@ public class BattleCameraController : MonoBehaviour
     public Vector2 actionLensShift = Vector2.zero;
 
     private Vector2 currentLensShift;
+    public Vector3 currentLookAtPoint; // 카메라가 바라볼 지점
 
     void Awake()
     {
@@ -53,7 +54,6 @@ public class BattleCameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        // 게임 실행 중에만 자동으로 카메라 로직을 실행합니다.
         if (!Application.isPlaying) return;
 
         Vector2 targetLensShift = Vector2.zero;
@@ -62,19 +62,19 @@ public class BattleCameraController : MonoBehaviour
         {
             case CameraState.CommandFocus:
                 if (enemyTarget == null) return;
-                HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, enemyLookAtHeight, true);
+                HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, currentLookAtPoint, true);
                 targetLensShift = commandLensShift;
                 break;
 
             case CameraState.SelectionFocus:
-                if (playerTarget == null) return; // 플레이어 타겟 사용
-                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, selectionLookAtHeight, true);
+                if (playerTarget == null) return;
+                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, currentLookAtPoint, true);
                 targetLensShift = selectionLensShift;
                 break;
 
             case CameraState.ActionFocus:
                 if (playerTarget == null) return;
-                HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, playerLookAtHeight, true);
+                HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, currentLookAtPoint, true);
                 targetLensShift = actionLensShift;
                 break;
         }
@@ -82,15 +82,13 @@ public class BattleCameraController : MonoBehaviour
         ApplyVanishingPointOffset(targetLensShift, true);
     }
 
-    // isSmooth 파라미터를 추가하여 부드러운 움직임 여부를 제어합니다.
-    private void HandleCameraPositionLogic(Transform target, Vector3 localOffset, float lookAtHeight, bool isSmooth)
+    private void HandleCameraPositionLogic(Transform target, Vector3 localOffset, Vector3 lookAtTargetPoint, bool isSmooth)
     {
         Vector3 desiredPosition = target.position + target.right * localOffset.x + target.up * localOffset.y + target.forward * localOffset.z;
         transform.position = isSmooth ? Vector3.Lerp(transform.position, desiredPosition, smoothSpeed) : desiredPosition;
 
-        Vector3 lookAtPoint = target.position + (Vector3.up * lookAtHeight);
-        Quaternion lookAtTarget = Quaternion.LookRotation(lookAtPoint - transform.position);
-        transform.rotation = isSmooth ? Quaternion.Slerp(transform.rotation, lookAtTarget, smoothSpeed) : lookAtTarget;
+        Quaternion lookAtRotation = Quaternion.LookRotation(lookAtTargetPoint - transform.position);
+        transform.rotation = isSmooth ? Quaternion.Slerp(transform.rotation, lookAtRotation, smoothSpeed) : lookAtRotation;
     }
 
     private void ApplyVanishingPointOffset(Vector2 targetOffset, bool isSmooth)
@@ -104,27 +102,25 @@ public class BattleCameraController : MonoBehaviour
         battleCamera.projectionMatrix = matrix;
     }
 
-    // 에디터 스크립트에서 호출할 공개 메소드
     public void UpdatePreviewInEditor(CameraState previewState)
     {
         if (Application.isPlaying) return;
 
-        // 에디터에서 호출 시에는 부드러운 움직임 없이 즉시 적용
         switch (previewState)
         {
             case CameraState.CommandFocus:
                 if (enemyTarget == null) { Debug.LogWarning("Enemy Target이 설정되지 않았습니다."); return; }
-                HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, enemyLookAtHeight, false);
+                HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, enemyTarget.position + (Vector3.up * enemyLookAtHeight), false);
                 ApplyVanishingPointOffset(commandLensShift, false);
                 break;
             case CameraState.SelectionFocus:
                 if (playerTarget == null) { Debug.LogWarning("Player Target이 설정되지 않았습니다."); return; }
-                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, selectionLookAtHeight, false);
+                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, playerTarget.position + (Vector3.up * selectionLookAtHeight), false);
                 ApplyVanishingPointOffset(selectionLensShift, false);
                 break;
             case CameraState.ActionFocus:
                 if (playerTarget == null) { Debug.LogWarning("Player Target이 설정되지 않았습니다."); return; }
-                HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, playerLookAtHeight, false);
+                HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, playerTarget.position + (Vector3.up * playerLookAtHeight), false);
                 ApplyVanishingPointOffset(actionLensShift, false);
                 break;
         }
@@ -133,23 +129,31 @@ public class BattleCameraController : MonoBehaviour
     public void FocusOnPlayer()
     {
         currentState = CameraState.ActionFocus;
+        if (playerTarget != null) currentLookAtPoint = playerTarget.position + (Vector3.up * playerLookAtHeight);
     }
 
     public void FocusOnEnemy()
     {
         currentState = CameraState.CommandFocus;
+        if (enemyTarget != null) currentLookAtPoint = enemyTarget.position + (Vector3.up * enemyLookAtHeight);
     }
 
     public void FocusForSelection()
     {
         currentState = CameraState.SelectionFocus;
+        if (playerTarget != null) currentLookAtPoint = playerTarget.position + (Vector3.up * selectionLookAtHeight);
     }
 
-    // BattleManager에서 호출하여 선택된 적을 타겟으로 설정합니다.
     public void FocusOnTarget(Transform newTarget)
     {
         enemyTarget = newTarget;
         currentState = CameraState.CommandFocus;
+        if (enemyTarget != null) currentLookAtPoint = enemyTarget.position + (Vector3.up * enemyLookAtHeight);
+    }
+
+    public void SetLookAtPoint(Vector3 point)
+    {
+        currentLookAtPoint = point;
     }
 
     private void OnDrawGizmosSelected()
