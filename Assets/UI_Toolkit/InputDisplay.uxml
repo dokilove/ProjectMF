@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="InputDisplay.uss" />
+    <ui:VisualElement name="LogContainer" class="log-container" />
+</ui:UXML>

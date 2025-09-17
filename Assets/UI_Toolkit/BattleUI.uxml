@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="BattleUI.uss" />
+    <ui:VisualElement class="main-container">
+        <ui:VisualElement name="PlayerHPContainer" class="player-hp-container" />
+        <ui:VisualElement name="EnemyHPContainer" class="enemy-hp-container" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,20 @@
+.log-container {
+    flex-grow: 1;
+    justify-content: flex-end; 
+    align-items: flex-start; /* 왼쪽 정렬로 변경 */
+    flex-direction: column;
+    max-height: 200px;
+    padding-left: 20px; /* 왼쪽 여백 추가 */
+}
+
+Label.log-entry {
+    font-size: 16px;
+    color: white;
+    -unity-font-style: bold;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    transition: opacity 0.1s ease-in;
+    opacity: 1;
+}

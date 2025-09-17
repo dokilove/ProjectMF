@@ -1,0 +1,48 @@
+.hp-bar-container {
+    width: 220px;
+    margin: 5px;
+}
+.name-label {
+    font-size: 14px;
+    color: white;
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+    /* 가독성 향상을 위한 배경 추가 */
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+.bar-row {
+    flex-direction: row;
+    align-items: center;
+}
+.track {
+    flex-grow: 1;
+    height: 15px;
+    background-color: rgb(40, 40, 40);
+    border-radius: 5px;
+    margin-right: 5px;
+    border-width: 1px;
+    border-color: rgb(80, 80, 80);
+}
+.fill {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(200, 50, 50); /* 기본값: 적(빨강) */
+    border-radius: 4px;
+    transition: width 0.2s ease-out;
+}
+
+.fill--player {
+    background-color: rgb(50, 200, 50); /* 플레이어(녹색) */
+}
+.hp-label {
+    font-size: 12px;
+    color: white;
+    min-width: 60px;
+    /* 가독성 향상을 위한 배경 추가 */
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 1px 3px;
+    border-radius: 3px;
+    -unity-text-align: middle-center; /* 중앙 정렬 */
+}

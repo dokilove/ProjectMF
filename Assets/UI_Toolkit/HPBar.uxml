@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="HPBar.uss" />
+    <ui:VisualElement class="hp-bar-container">
+        <ui:Label name="NameLabel" text="Character Name" class="name-label"/>
+        <ui:VisualElement class="bar-row">
+            <ui:VisualElement class="track">
+                <ui:VisualElement name="Fill" class="fill"/>
+            </ui:VisualElement>
+            <ui:Label name="HPLabel" text="100/100" class="hp-label"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

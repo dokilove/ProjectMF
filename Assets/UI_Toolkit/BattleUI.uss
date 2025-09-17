@@ -1,0 +1,17 @@
+.main-container {
+    flex-grow: 1;
+    flex-direction: row-reverse; /* 자식 순서를 반대로 배치 (플레이어->오른쪽, 적->왼쪽) */
+    justify-content: space-between; 
+    align-items: flex-start; 
+    padding: 20px;
+}
+
+.player-hp-container {
+    /* order 속성 제거 */
+}
+
+.enemy-hp-container {
+    /* order 속성 제거 */
+    flex-direction: column; 
+    align-items: flex-start;
+}
