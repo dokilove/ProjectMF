@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // 전투 씬에 있는 캐릭터(플레이어, 적)에 대한 공통 로직을 처리합니다.
@@ -8,8 +10,12 @@ public class BattleCharacter : MonoBehaviour
     public Vector3 OriginalPosition { get; private set; }
 
     [SerializeField] private Color selectedColor = Color.yellow;
-    private float currentMoveSpeed; // Action 페이즈에서의 이동 속도 (UnitStats에서 가져옴)
+    [SerializeField] private GameObject[] attackHitboxes; // 공격 판정에 사용할 충돌 박스 배열
+    
+    // 디버깅용: 활성화된 히트박스 인덱스 추적
+    private readonly HashSet<int> _activeHitboxIndices = new HashSet<int>();
 
+    private float currentMoveSpeed; // Action 페이즈에서의 이동 속도 (UnitStats에서 가져옴)
     private Renderer[] characterRenderers;
     private Color[] originalColors;
     private Animator animator; // Animator 컴포넌트 추가
@@ -42,6 +48,12 @@ public class BattleCharacter : MonoBehaviour
         {
             Debug.LogWarning($"{gameObject.name}에 Animator 컴포넌트가 없습니다. 애니메이션을 재생할 수 없습니다.");
         }
+    }
+
+    void Start()
+    {
+        // 시작 시 모든 충돌 박스는 비활성화
+        DisableAllAttackHitboxes();
     }
 
     void Update()
@@ -112,4 +124,61 @@ public class BattleCharacter : MonoBehaviour
             Debug.Log($"{gameObject.name} - Attack Animation Triggered!");
         }
     }
+
+    #region Animation Events & Hitbox Control
+
+    public void EnableAttackHitboxByIndex(int index)
+    {
+        if (attackHitboxes != null && index >= 0 && index < attackHitboxes.Length && attackHitboxes[index] != null)
+        {
+            attackHitboxes[index].SetActive(true);
+            _activeHitboxIndices.Add(index);
+        }
+        else
+        {
+            Debug.LogWarning($"{gameObject.name} - EnableAttackHitboxByIndex: Invalid index {index} or hitbox is not assigned.");
+        }
+    }
+
+    public void DisableAttackHitboxByIndex(int index)
+    {
+        if (attackHitboxes != null && index >= 0 && index < attackHitboxes.Length && attackHitboxes[index] != null)
+        {
+            attackHitboxes[index].SetActive(false);
+            _activeHitboxIndices.Remove(index);
+        }
+        else
+        {
+            Debug.LogWarning($"{gameObject.name} - DisableAttackHitboxByIndex: Invalid index {index} or hitbox is not assigned.");
+        }
+    }
+
+    // 모든 활성화된 공격 히트박스를 비활성화합니다.
+    public void DisableAllAttackHitboxes()
+    {
+        if (attackHitboxes == null) return;
+
+        foreach (var hitbox in attackHitboxes)
+        {
+            if (hitbox != null && hitbox.activeSelf)
+            {
+                hitbox.SetActive(false);
+            }
+        }
+        _activeHitboxIndices.Clear();
+    }
+
+    // 디버깅: 활성화된 히트박스가 있는지 확인
+    public bool HasActiveHitboxes()
+    {
+        return _activeHitboxIndices.Count > 0;
+    }
+
+    // 디버깅: 활성화된 히트박스 인덱스 목록 가져오기
+    public IEnumerable<int> GetActiveHitboxIndices()
+    {
+        return _activeHitboxIndices;
+    }
+
+    #endregion
 }
