@@ -250,40 +250,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 746cad212bb1563489222b696923f3e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerStatsSource: {fileID: 11400000, guid: 273e2d34c273ee04a8fe93f26a940fb4, type: 2}
+  enemyDataSource:
+  - {fileID: 11400000, guid: d3c2e9fe186c71b48a99b94c5c043c10, type: 2}
+  - {fileID: 11400000, guid: dfb60392a7e191648af9e93bbcdd6d41, type: 2}
+  enemyGroupSource:
+  - {fileID: 11400000, guid: 0b6e8abef49c0f840987557acabaec34, type: 2}
+  - {fileID: 11400000, guid: 01a8104f8fd72d74db8434b6eb5bb1d8, type: 2}
   playerStats:
     unitName: PlayerTM
     maxHP: 192
     currentHP: 168
     attackPower: 11
     moveSpeed: 0.4
-  enemyDatabaseList:
-  - enemyId: Enemy_alpha
-    stats:
-      unitName: Alpha
-      maxHP: 80
-      currentHP: 80
-      attackPower: 20
-      moveSpeed: 0.6
-    battlePrefab: {fileID: 2484055279281000640, guid: 5fd57d8ae94d9904ab27862947c50a2a, type: 3}
-  - enemyId: Enemy_bravo
-    stats:
-      unitName: Bravo
-      maxHP: 120
-      currentHP: 120
-      attackPower: 10
-      moveSpeed: 1.8
-    battlePrefab: {fileID: 2484055279281000640, guid: 11cb59471ac587c49b1f233df641c3dc, type: 3}
-  enemyGroupSettings:
-  - groupId: ForestAmbush
-    enemyIds:
-    - Enemy_alpha
-    - Enemy_bravo
-    - Enemy_bravo
-  - groupId: SlimeSwarm
-    enemyIds:
-    - Enemy_bravo
-    - Enemy_alpha
-    - Enemy_bravo
 --- !u!4 &169861143
 Transform:
   m_ObjectHideFlags: 0
@@ -2277,7 +2256,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: enemyGroupId
-      value: SlimeSwarm
+      value: EG_001
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
@@ -2447,7 +2426,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: enemyGroupId
-      value: ForestAmbush
+      value: EG_002
       objectReference: {fileID: 0}
     - target: {fileID: 5813539553759483815, guid: c312bf89a39d8e545b932668a7e57783, type: 3}
       propertyPath: 'waypoints.Array.data[0]'

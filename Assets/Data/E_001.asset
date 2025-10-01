@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b962258edafa3eb419d73031e5264626, type: 3}
+  m_Name: E_001
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
+  enemyId: E_001
+  stats:
+    unitName: Enemy_Alpha
+    maxHP: 80
+    currentHP: 80
+    attackPower: 10
+    moveSpeed: 0.5
+  battlePrefab: {fileID: 2484055279281000640, guid: 5fd57d8ae94d9904ab27862947c50a2a, type: 3}

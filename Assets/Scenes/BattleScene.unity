@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &110838876
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 110838878}
+  - component: {fileID: 110838877}
+  m_Layer: 0
+  m_Name: BattleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &110838877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110838876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bf610fa84ac4704f89f016e0610417f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleManager
+  battleSceneName: BattleScene
+  playerObject: {fileID: 0}
+  mainCamera: {fileID: 0}
+  playerBattlePrefab: {fileID: 0}
+--- !u!4 &110838878
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110838876}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &165521744
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +468,7 @@ Transform:
   m_GameObject: {fileID: 426275471}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -669,13 +717,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 961739749}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09424297, y: 0.58075136, z: -0.06792649, w: 0.8057494}
-  m_LocalPosition: {x: -6, y: 3, z: -7}
+  m_LocalRotation: {x: -0.075189926, y: 0.5236733, z: 0.04646993, w: 0.84732133}
+  m_LocalPosition: {x: -4, y: 0.7, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 8.354, y: 16.335, z: 2.438}
+  m_LocalEulerAnglesHint: {x: -9.32, y: 71.28, z: 0}
 --- !u!114 &961739754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,10 +742,10 @@ MonoBehaviour:
   commandStateLocalOffset: {x: 3, y: 3, z: 6}
   enemyLookAtHeight: 1.5
   commandLensShift: {x: 0.1, y: 0}
-  selectionStateLocalOffset: {x: -9, y: 4, z: -3}
-  selectionLookAtHeight: 1.5
+  selectionStateLocalOffset: {x: -4, y: 0.7, z: -2}
+  selectionLookAtHeight: 1
   selectionLensShift: {x: -0.6, y: 0}
-  actionStateLocalOffset: {x: -6, y: 3, z: -2}
+  actionStateLocalOffset: {x: -4, y: 0.7, z: -2}
   playerLookAtHeight: 1.5
   actionLensShift: {x: -0.1, y: 0}
   currentLookAtPoint: {x: 0, y: 0, z: 0}
@@ -773,7 +821,58 @@ Transform:
   m_GameObject: {fileID: 1369367343}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5}
+  m_LocalPosition: {x: 0, y: 0, z: -2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1425508063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1425508065}
+  - component: {fileID: 1425508064}
+  m_Layer: 0
+  m_Name: BattleTestInitializer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1425508064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425508063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace8cf8dc57d80340ae77740c8ec9cda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleTestInitializer
+  playerStatsSource: {fileID: 11400000, guid: 273e2d34c273ee04a8fe93f26a940fb4, type: 2}
+  testEnemyGroup: {fileID: 11400000, guid: 0b6e8abef49c0f840987557acabaec34, type: 2}
+  testEnemyDatabase:
+  - {fileID: 11400000, guid: d3c2e9fe186c71b48a99b94c5c043c10, type: 2}
+  - {fileID: 11400000, guid: dfb60392a7e191648af9e93bbcdd6d41, type: 2}
+  gameDataManagerPrefab: {fileID: 0}
+  playerBattlePrefab: {fileID: 7288632897982827583, guid: a179ca2bcde25764eaa03d1dcf9de180, type: 3}
+--- !u!4 &1425508065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425508063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -863,3 +962,5 @@ SceneRoots:
   - {fileID: 426275472}
   - {fileID: 165521745}
   - {fileID: 1591924748}
+  - {fileID: 1425508065}
+  - {fileID: 110838878}
