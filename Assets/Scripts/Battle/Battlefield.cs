@@ -11,4 +11,8 @@ public class Battlefield : MonoBehaviour
     public Transform enemySpawnCenter;
     [Tooltip("중앙 지점에서 각 적들이 얼마나 떨어져 생성될지에 대한 간격입니다.")]
     public Vector3 spawnOffset = new Vector3(2.5f, 0, 0); // 기본 x축 간격을 2.5로 설정
+
+    [Header("Selection/Action 페이즈 위치")]
+    public Transform playerSelectionSpawnPoint;
+    public Transform enemySelectionSpawnCenter;
 }

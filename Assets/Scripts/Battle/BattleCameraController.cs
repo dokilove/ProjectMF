@@ -1,190 +1,69 @@
+
 using UnityEngine;
 
-[ExecuteAlways] // 에디터 모드에서도 실행되도록 설정
 public class BattleCameraController : MonoBehaviour
 {
-    public enum CameraState { Idle, CommandFocus, SelectionFocus, ActionFocus }
-    private CameraState currentState = CameraState.Idle;
-    private Camera battleCamera;
+    [Header("카메라")]
+    public Camera commandCamera;
+    public Camera selectionCamera;
+    public Camera actionCamera;
 
-    [Header("타겟 설정")]
-    public Transform playerTarget;
-    public Transform enemyTarget;
+    [Header("Command 카메라 설정")]
+    [Tooltip("Command 카메라가 바라볼 대상")]
+    public Transform commandTarget;
+    [Tooltip("대상을 바라볼 때의 높이 오프셋")]
+    public float commandLookAtHeight = 1.5f;
+    [Tooltip("카메라 회전의 부드러움 정도")]
+    public float smoothSpeed = 5f;
 
-    [Header("카메라 공통 설정")]
-    public float smoothSpeed = 0.05f;
-
-    [Header("Command 상태 설정")]
-    [Tooltip("적으로부터의 상대 위치")]
-    public Vector3 commandStateLocalOffset = new Vector3(0, 4, -10);
-    [Tooltip("적이 바라보이는 높이(Y) 오프셋")]
-    public float enemyLookAtHeight = 1.5f;
-    [Tooltip("화면 중심 이동 (Vanishing Point Offset)")]
-    public Vector2 commandLensShift = Vector2.zero;
-
-    [Header("Selection 상태 설정")]
-    [Tooltip("플레이어로부터의 상대 위치")]
-    public Vector3 selectionStateLocalOffset = new Vector3(1, 2, -5);
-    [Tooltip("플레이어가 바라보이는 높이(Y) 오프셋")]
-    public float selectionLookAtHeight = 1.5f;
-    [Tooltip("화면 중심 이동 (Vanishing Point Offset)")]
-    public Vector2 selectionLensShift = Vector2.zero;
-
-    [Header("Action 상태 설정")]
-    [Tooltip("플레이어로부터의 상대 위치")]
-    public Vector3 actionStateLocalOffset = new Vector3(1, 2, -5);
-    [Tooltip("플레이어가 바라보이는 높이(Y) 오프셋")]
-    public float playerLookAtHeight = 1.5f;
-    [Tooltip("화면 중심 이동 (Vanishing Point Offset)")]
-    public Vector2 actionLensShift = Vector2.zero;
-
-    private Vector2 currentLensShift;
-    public Vector3 currentLookAtPoint; // 카메라가 바라볼 지점
-
-    void Awake()
+    void Start()
     {
-        battleCamera = GetComponent<Camera>();
-        if (battleCamera == null) battleCamera = Camera.main;
-        if (battleCamera == null)
-        {
-            Debug.LogError("씬에 카메라가 없습니다.");
-            this.enabled = false;
-        }
+        // 시작 시 Command 카메라만 활성화
+        SwitchToCommandView();
     }
 
     void LateUpdate()
     {
-        if (!Application.isPlaying) return;
-
-        Vector2 targetLensShift = Vector2.zero;
-
-        switch (currentState)
+        // Command 카메라가 활성화되어 있고 타겟이 지정된 경우에만 실행
+        if (commandCamera != null && commandCamera.gameObject.activeInHierarchy && commandTarget != null)
         {
-            case CameraState.CommandFocus:
-                if (enemyTarget == null) return;
-                HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, currentLookAtPoint, true);
-                targetLensShift = commandLensShift;
-                break;
+            Transform camTransform = commandCamera.transform;
 
-            case CameraState.SelectionFocus:
-                if (playerTarget == null) return;
-                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, currentLookAtPoint, true);
-                targetLensShift = selectionLensShift;
-                break;
+            // 목표 지점 계산 (카메라가 바라볼 실제 위치)
+            Vector3 lookAtPoint = commandTarget.position + Vector3.up * commandLookAtHeight;
 
-            case CameraState.ActionFocus:
-                if (playerTarget == null) return;
-                HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, currentLookAtPoint, true);
-                targetLensShift = actionLensShift;
-                break;
-        }
+            // 카메라의 로컬 X축(좌우)으로 얼마나 이동해야 타겟이 중앙에 오는지 계산합니다.
+            // 1. 카메라에서 타겟까지의 벡터를 구합니다.
+            Vector3 toTarget = lookAtPoint - camTransform.position;
+            // 2. 이 벡터를 카메라의 오른쪽(right) 벡터에 투영(Dot)하여 X축 방향의 차이를 구합니다.
+            float xDifference = Vector3.Dot(toTarget, camTransform.right);
 
-        ApplyVanishingPointOffset(targetLensShift, true);
-    }
+            // 3. 현재 위치에서 계산된 차이만큼 오른쪽 벡터 방향으로 이동한 위치가 목표 위치입니다.
+            Vector3 desiredPosition = camTransform.position + camTransform.right * xDifference;
 
-    private void HandleCameraPositionLogic(Transform target, Vector3 localOffset, Vector3 lookAtTargetPoint, bool isSmooth)
-    {
-        Vector3 desiredPosition = target.position + target.right * localOffset.x + target.up * localOffset.y + target.forward * localOffset.z;
-        transform.position = isSmooth ? Vector3.Lerp(transform.position, desiredPosition, smoothSpeed) : desiredPosition;
-
-        Quaternion lookAtRotation = Quaternion.LookRotation(lookAtTargetPoint - transform.position);
-        transform.rotation = isSmooth ? Quaternion.Slerp(transform.rotation, lookAtRotation, smoothSpeed) : lookAtRotation;
-    }
-
-    private void ApplyVanishingPointOffset(Vector2 targetOffset, bool isSmooth)
-    {
-        currentLensShift = isSmooth ? Vector2.Lerp(currentLensShift, targetOffset, smoothSpeed) : targetOffset;
-        
-        battleCamera.ResetProjectionMatrix();
-        Matrix4x4 matrix = battleCamera.projectionMatrix;
-        matrix.m02 = currentLensShift.x;
-        matrix.m12 = currentLensShift.y;
-        battleCamera.projectionMatrix = matrix;
-    }
-
-    public void UpdatePreviewInEditor(CameraState previewState)
-    {
-        if (Application.isPlaying) return;
-
-        switch (previewState)
-        {
-            case CameraState.CommandFocus:
-                if (enemyTarget == null) { Debug.LogWarning("Enemy Target이 설정되지 않았습니다."); return; }
-                HandleCameraPositionLogic(enemyTarget, commandStateLocalOffset, enemyTarget.position + (Vector3.up * enemyLookAtHeight), false);
-                ApplyVanishingPointOffset(commandLensShift, false);
-                break;
-            case CameraState.SelectionFocus:
-                if (playerTarget == null) { Debug.LogWarning("Player Target이 설정되지 않았습니다."); return; }
-                HandleCameraPositionLogic(playerTarget, selectionStateLocalOffset, playerTarget.position + (Vector3.up * selectionLookAtHeight), false);
-                ApplyVanishingPointOffset(selectionLensShift, false);
-                break;
-            case CameraState.ActionFocus:
-                if (playerTarget == null) { Debug.LogWarning("Player Target이 설정되지 않았습니다."); return; }
-                HandleCameraPositionLogic(playerTarget, actionStateLocalOffset, playerTarget.position + (Vector3.up * playerLookAtHeight), false);
-                ApplyVanishingPointOffset(actionLensShift, false);
-                break;
+            // 부드럽게 위치를 이동시킵니다.
+            camTransform.position = Vector3.Lerp(camTransform.position, desiredPosition, Time.deltaTime * smoothSpeed);
         }
     }
 
-    public void FocusOnPlayer()
+    public void SwitchToCommandView()
     {
-        currentState = CameraState.ActionFocus;
-        if (playerTarget != null) currentLookAtPoint = playerTarget.position + (Vector3.up * playerLookAtHeight);
+        if (commandCamera != null) commandCamera.gameObject.SetActive(true);
+        if (selectionCamera != null) selectionCamera.gameObject.SetActive(false);
+        if (actionCamera != null) actionCamera.gameObject.SetActive(false);
     }
 
-    public void FocusOnEnemy()
+    public void SwitchToSelectionView()
     {
-        currentState = CameraState.CommandFocus;
-        if (enemyTarget != null) currentLookAtPoint = enemyTarget.position + (Vector3.up * enemyLookAtHeight);
+        if (commandCamera != null) commandCamera.gameObject.SetActive(false);
+        if (selectionCamera != null) selectionCamera.gameObject.SetActive(true);
+        if (actionCamera != null) actionCamera.gameObject.SetActive(false);
     }
 
-    public void FocusForSelection()
+    public void SwitchToActionView()
     {
-        currentState = CameraState.SelectionFocus;
-        if (playerTarget != null) currentLookAtPoint = playerTarget.position + (Vector3.up * selectionLookAtHeight);
-    }
-
-    public void FocusOnTarget(Transform newTarget)
-    {
-        enemyTarget = newTarget;
-        currentState = CameraState.CommandFocus;
-        if (enemyTarget != null) currentLookAtPoint = enemyTarget.position + (Vector3.up * enemyLookAtHeight);
-    }
-
-    public void SetLookAtPoint(Vector3 point)
-    {
-        currentLookAtPoint = point;
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (enemyTarget != null)
-        {
-            Gizmos.color = Color.red;
-            Vector3 commandCamPos = enemyTarget.position + enemyTarget.right * commandStateLocalOffset.x + enemyTarget.up * commandStateLocalOffset.y + enemyTarget.forward * commandStateLocalOffset.z;
-            Vector3 enemyLookAtPos = enemyTarget.position + Vector3.up * enemyLookAtHeight;
-            DrawCameraGizmo(commandCamPos, enemyLookAtPos);
-        }
-
-        if (playerTarget != null)
-        {
-            // Selection Gizmo
-            Gizmos.color = Color.yellow; 
-            Vector3 selectionCamPos = playerTarget.position + playerTarget.right * selectionStateLocalOffset.x + playerTarget.up * selectionStateLocalOffset.y + playerTarget.forward * selectionStateLocalOffset.z;
-            Vector3 selectionLookAtPos = playerTarget.position + Vector3.up * selectionLookAtHeight;
-            DrawCameraGizmo(selectionCamPos, selectionLookAtPos);
-
-            // Action Gizmo
-            Gizmos.color = Color.green;
-            Vector3 actionCamPos = playerTarget.position + playerTarget.right * actionStateLocalOffset.x + playerTarget.up * actionStateLocalOffset.y + playerTarget.forward * actionStateLocalOffset.z;
-            Vector3 playerLookAtPos = playerTarget.position + Vector3.up * playerLookAtHeight;
-            DrawCameraGizmo(actionCamPos, playerLookAtPos);
-        }
-    }
-
-    private void DrawCameraGizmo(Vector3 cameraPosition, Vector3 targetPosition)
-    {
-        Gizmos.DrawWireSphere(cameraPosition, 0.5f);
-        Gizmos.DrawLine(cameraPosition, targetPosition);
+        if (commandCamera != null) commandCamera.gameObject.SetActive(false);
+        if (selectionCamera != null) selectionCamera.gameObject.SetActive(false);
+        if (actionCamera != null) actionCamera.gameObject.SetActive(true);
     }
 }

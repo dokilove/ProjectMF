@@ -185,10 +185,10 @@ public class BattleManager : MonoBehaviour
         battleCameraController = FindFirstObjectByType<BattleCameraController>();
 
         // BattleCameraController에 플레이어 타겟 설정
-        if (battleCameraController != null && playerBattleCharacter != null)
-        {
-            battleCameraController.playerTarget = playerBattleCharacter.transform;
-        }
+        // if (battleCameraController != null && playerBattleCharacter != null)
+        // {
+        //     battleCameraController.playerTarget = playerBattleCharacter.transform;
+        // }
 
         if (battleUIController != null) // hpDisplay를 battleUIController로 변경
         {
@@ -278,7 +278,7 @@ public class BattleManager : MonoBehaviour
         }
 
         if (playerInputController != null) playerInputController.EnableBattleCommandControls();
-        if (battleCameraController != null && SelectedEnemy != null) battleCameraController.FocusOnTarget(SelectedEnemy.transform);
+        if (battleCameraController != null) battleCameraController.SwitchToCommandView();
     }
 
     private void HandleBattleSubmit()
@@ -289,9 +289,17 @@ public class BattleManager : MonoBehaviour
                 if (SelectedEnemy == null) return;
                 currentPhase = BattlePhase.Selection;
 
-                if (SelectedEnemy != null && battlefield != null && battlefield.enemySpawnCenter != null)
+                // 플레이어와 선택된 적을 Selection 페이즈 위치로 이동시킵니다.
+                if (battlefield != null)
                 {
-                    SelectedEnemy.transform.position = battlefield.enemySpawnCenter.position;
+                    if (playerBattleCharacter != null && battlefield.playerSelectionSpawnPoint != null)
+                    {
+                        playerBattleCharacter.transform.position = battlefield.playerSelectionSpawnPoint.position;
+                    }
+                    if (SelectedEnemy != null && battlefield.enemySelectionSpawnCenter != null)
+                    {
+                        SelectedEnemy.transform.position = battlefield.enemySelectionSpawnCenter.position;
+                    }
                 }
 
                 foreach (var enemy in activeEnemies)
@@ -299,7 +307,7 @@ public class BattleManager : MonoBehaviour
                     if (enemy != SelectedEnemy) enemy.gameObject.SetActive(false);
                 }
                 if (battleUIController != null) battleUIController.ShowOnlySelectedUI(SelectedEnemy); // hpDisplay를 battleUIController로 변경
-                if (battleCameraController != null) battleCameraController.FocusForSelection();
+                if (battleCameraController != null) battleCameraController.SwitchToSelectionView();
                 break;
 
             case BattlePhase.Selection:
@@ -317,7 +325,7 @@ public class BattleManager : MonoBehaviour
                 if (playerInputController != null)
                 {
                     playerInputController.EnableBattleActionControls();
-                    if (battleCameraController != null) battleCameraController.FocusOnPlayer();
+                    if (battleCameraController != null) battleCameraController.SwitchToActionView();
                 }
                 break;
         }
@@ -327,15 +335,6 @@ public class BattleManager : MonoBehaviour
     {
         if (isActionPhase)
         {
-            // BattleAction 페이즈에서 카메라가 플레이어와 선택된 적의 중간 지점을 바라보도록 업데이트
-            if (battleCameraController != null && playerBattleCharacter != null && SelectedEnemy != null)
-            {
-                Vector3 midpoint = (playerBattleCharacter.transform.position + SelectedEnemy.transform.position) / 2f;
-                // Y축 오프셋을 추가하여 좀 더 자연스러운 시점 제공
-                midpoint.y += 1.0f; // 적절한 높이 오프셋 설정
-                battleCameraController.SetLookAtPoint(midpoint);
-            }
-
             if (Input.GetKeyDown(KeyCode.Backspace))
             {
                 if (isTestMode)
@@ -406,7 +405,14 @@ public class BattleManager : MonoBehaviour
             {
                 activeEnemies[i].Select();
                 SelectedEnemy = activeEnemies[i];
-                if (battleCameraController != null) battleCameraController.FocusOnTarget(SelectedEnemy.transform);
+
+                // 카메라 컨트롤러에 타겟 설정 및 뷰 전환
+                if (battleCameraController != null) 
+                {
+                    battleCameraController.commandTarget = SelectedEnemy.transform;
+                    battleCameraController.SwitchToCommandView();
+                }
+
                 if (battleUIController != null) battleUIController.UpdateSelectionUI(SelectedEnemy); // hpDisplay를 battleUIController로 변경
             }
             else

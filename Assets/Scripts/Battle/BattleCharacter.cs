@@ -61,7 +61,7 @@ public class BattleCharacter : MonoBehaviour
         if (isMoving && targetToMoveTowards != null)
         {
             // 목표를 향해 이동
-            transform.position = Vector3.MoveTowards(transform.position, targetToMoveTowards.position, currentMoveSpeed * Time.deltaTime);
+            // transform.position = Vector3.MoveTowards(transform.position, targetToMoveTowards.position, currentMoveSpeed * Time.deltaTime);
         }
     }
 

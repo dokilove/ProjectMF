@@ -745,7 +745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1260523408673315893}
   - component: {fileID: 2221672122090923608}
-  - component: {fileID: 4717425163348710121}
+  - component: {fileID: 3357554056017981526}
   m_Layer: 15
   m_Name: Player_Battle
   m_TagString: Untagged
@@ -790,7 +790,7 @@ MonoBehaviour:
   - {fileID: 5790682908962794754}
   - {fileID: 6468628675214882258}
   - {fileID: 602425062306686394}
---- !u!95 &4717425163348710121
+--- !u!95 &3357554056017981526
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -799,11 +799,11 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7288632897982827583}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
+  m_Avatar: {fileID: 9000000, guid: 73ffbc06802a247cfb1b26f4ee67eba8, type: 3}
   m_Controller: {fileID: 9100000, guid: 5dd827df651dfe0409385986dde6d91a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -864,7 +864,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: KyleRobot
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 5866666021909216657, guid: 73ffbc06802a247cfb1b26f4ee67eba8, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 5dd827df651dfe0409385986dde6d91a, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 73ffbc06802a247cfb1b26f4ee67eba8, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 73ffbc06802a247cfb1b26f4ee67eba8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
