@@ -11,7 +11,13 @@ public class BattleCharacter : MonoBehaviour
 
     [SerializeField] private Color selectedColor = Color.yellow;
     [SerializeField] private GameObject[] attackHitboxes; // 공격 판정에 사용할 충돌 박스 배열
-    
+
+    [Header("Target Indicator")]
+    [SerializeField] private GameObject targetIndicatorPrefab; // 1단계에서 만들 화살표 프리팹
+    [SerializeField] private Transform indicatorAnchor;      // 2단계에서 만들 위치 앵커
+
+    private GameObject instantiatedIndicator; // 생성된 화살표 인스턴스를 저장할 변수
+
     // 디버깅용: 활성화된 히트박스 인덱스 추적
     private readonly HashSet<int> _activeHitboxIndices = new HashSet<int>();
 
@@ -61,7 +67,7 @@ public class BattleCharacter : MonoBehaviour
         if (isMoving && targetToMoveTowards != null)
         {
             // 목표를 향해 이동
-            // transform.position = Vector3.MoveTowards(transform.position, targetToMoveTowards.position, currentMoveSpeed * Time.deltaTime);
+            // transform.position = Vector3.MoveTowards(transform.position, currentMoveSpeed * Time.deltaTime);
         }
     }
 
@@ -93,25 +99,34 @@ public class BattleCharacter : MonoBehaviour
     // 캐릭터가 선택되었을 때 호출
     public void Select()
     {
-        if (characterRenderers == null) return;
-
-        foreach (var rend in characterRenderers)
+        // 새로운 화살표 생성 로직
+        if (targetIndicatorPrefab != null && indicatorAnchor != null)
         {
-            rend.material.color = selectedColor;
+            // 이미 생성된게 있다면 중복 생성 방지
+            if (instantiatedIndicator == null)
+            {
+                instantiatedIndicator = Instantiate(targetIndicatorPrefab, indicatorAnchor);
+            }
         }
     }
 
     // 캐릭터 선택이 해제되었을 때 호출
     public void Deselect()
     {
-        if (characterRenderers == null) return;
-
-        for (int i = 0; i < characterRenderers.Length; i++)
+        // 새로운 화살표 파괴 로직
+        if (instantiatedIndicator != null)
         {
-            if(characterRenderers[i] != null)
-            {
-                characterRenderers[i].material.color = originalColors[i];
-            }
+            Destroy(instantiatedIndicator);
+            instantiatedIndicator = null;
+        }
+    }
+
+    // 외부에서 표시기(화살표)의 활성 상태를 제어합니다.
+    public void SetIndicatorActive(bool isActive)
+    {
+        if (instantiatedIndicator != null)
+        {
+            instantiatedIndicator.SetActive(isActive);
         }
     }
 

@@ -39,6 +39,8 @@ public class BattleManager : MonoBehaviour
     private bool isActionPhase = false;
     private bool isTestMode = false;
 
+    private List<GameObject> deactivatedDungeonObjects = new List<GameObject>();
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -126,6 +128,17 @@ public class BattleManager : MonoBehaviour
 
             EnemyAI[] allEnemiesInDungeon = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
             foreach (EnemyAI e in allEnemiesInDungeon) e.SetBattleMode(true);
+
+            // Deactivate all root objects in the dungeon scene except for the BattleManager itself
+            deactivatedDungeonObjects.Clear();
+            foreach (GameObject rootObj in currentMainScene.GetRootGameObjects())
+            {
+                if (rootObj != this.gameObject) // Don't disable the BattleManager
+                {
+                    rootObj.SetActive(false);
+                    deactivatedDungeonObjects.Add(rootObj);
+                }
+            }
 
             if (playerObject != null) playerObject.SetActive(false);
             if (mainCamera != null) mainCamera.gameObject.SetActive(false);
@@ -237,6 +250,13 @@ public class BattleManager : MonoBehaviour
         battleCameraController = null;
         SceneManager.UnloadSceneAsync(battleSceneName);
 
+        // Reactivate all the objects from the dungeon scene that were disabled
+        foreach (GameObject rootObj in deactivatedDungeonObjects)
+        {
+            if(rootObj != null) rootObj.SetActive(true);
+        }
+        deactivatedDungeonObjects.Clear();
+
         if (dungeonEventSystem != null) dungeonEventSystem.SetActive(true);
         if (playerObject != null) playerObject.SetActive(true);
         if (mainCamera != null) mainCamera.gameObject.SetActive(true);
@@ -265,6 +285,9 @@ public class BattleManager : MonoBehaviour
         currentPhase = BattlePhase.Command;
         isActionPhase = false;
 
+        // 커맨드 단계로 돌아왔으므로 표시기를 다시 활성화합니다.
+        if (SelectedEnemy != null) SelectedEnemy.SetIndicatorActive(true);
+
         foreach (var enemy in activeEnemies)
         {
             enemy.StopActionMovement(); // 이동 중지 및 위치 리셋
@@ -288,6 +311,9 @@ public class BattleManager : MonoBehaviour
             case BattlePhase.Command:
                 if (SelectedEnemy == null) return;
                 currentPhase = BattlePhase.Selection;
+
+                // 커맨드 단계가 끝나므로 표시기를 비활성화합니다.
+                if (SelectedEnemy != null) SelectedEnemy.SetIndicatorActive(false);
 
                 // 플레이어와 선택된 적을 Selection 페이즈 위치로 이동시킵니다.
                 if (battlefield != null)
@@ -404,6 +430,7 @@ public class BattleManager : MonoBehaviour
             if (i == selectedEnemyIndex)
             {
                 activeEnemies[i].Select();
+                activeEnemies[i].SetIndicatorActive(true); // 표시기 활성화
                 SelectedEnemy = activeEnemies[i];
 
                 // 카메라 컨트롤러에 타겟 설정 및 뷰 전환
