@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1436201583073580762}
   - component: {fileID: 373417699423806083}
   - component: {fileID: 6419604672335376963}
+  - component: {fileID: 48026254735145187}
   m_Layer: 15
   m_Name: AttackHitbox_0
   m_TagString: Untagged
@@ -27,9 +28,9 @@ Transform:
   m_GameObject: {fileID: 684855102723176705}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.25, z: 0.83}
+  m_LocalPosition: {x: 0, y: 1.25, z: 1.01}
   m_LocalScale: {x: 0.74, y: 0.74, z: 0.74}
-  m_ConstrainProportionsScale: 1
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6168765197987718926}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -67,7 +68,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugHitboxVisualizer
   showInGame: 1
+  passivelyVisible: 0
   visualizerColor: {r: 1, g: 0, b: 0, a: 0.3}
+  hitColor: {r: 1, g: 1, b: 0, a: 0.5}
+--- !u!114 &48026254735145187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 684855102723176705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 241a5d0dbe0edc1499c5e973e668f26f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackHitbox
 --- !u!1 &1810874799317605331
 GameObject:
   m_ObjectHideFlags: 0
@@ -113,6 +128,7 @@ GameObject:
   - component: {fileID: 4632821783137560014}
   - component: {fileID: 1724273088480438974}
   - component: {fileID: 1185329132319042780}
+  - component: {fileID: 8939678949003145378}
   m_Layer: 15
   m_Name: AttackHitbox_1
   m_TagString: Untagged
@@ -169,7 +185,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugHitboxVisualizer
   showInGame: 1
+  passivelyVisible: 0
   visualizerColor: {r: 1, g: 0, b: 0, a: 0.3}
+  hitColor: {r: 1, g: 1, b: 0, a: 0.5}
+--- !u!114 &8939678949003145378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4581137428211843335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 241a5d0dbe0edc1499c5e973e668f26f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackHitbox
 --- !u!1 &5790682908962794754
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,6 +211,7 @@ GameObject:
   - component: {fileID: 6588882181631722619}
   - component: {fileID: 8862460871757538389}
   - component: {fileID: 6444308150465784873}
+  - component: {fileID: 4205419478726960423}
   m_Layer: 15
   m_Name: AttackHitbox_2
   m_TagString: Untagged
@@ -237,7 +268,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugHitboxVisualizer
   showInGame: 1
+  passivelyVisible: 0
   visualizerColor: {r: 1, g: 0, b: 0, a: 0.3}
+  hitColor: {r: 1, g: 1, b: 0, a: 0.5}
+--- !u!114 &4205419478726960423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5790682908962794754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 241a5d0dbe0edc1499c5e973e668f26f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackHitbox
 --- !u!1 &7288632897982827583
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,11 +330,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3251342fe9a35fc44a901728309b8fd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   attackHitboxes:
-  - {fileID: 684855102723176705}
-  - {fileID: 4581137428211843335}
-  - {fileID: 5790682908962794754}
+  - {fileID: 48026254735145187}
+  - {fileID: 8939678949003145378}
+  - {fileID: 4205419478726960423}
+  targetIndicatorPrefab: {fileID: 0}
+  indicatorAnchor: {fileID: 0}
 --- !u!95 &3357554056017981526
 Animator:
   serializedVersion: 7

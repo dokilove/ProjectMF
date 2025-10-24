@@ -11,13 +11,6 @@ public class EnterIdleBehaviour : StateMachineBehaviour
         BattleCharacter character = animator.GetComponent<BattleCharacter>();
         if (character != null)
         {
-            // 디버깅: 상태 진입 시 활성화된 히트박스가 있는지 확인하고 에러 로그를 남깁니다.
-            if (character.HasActiveHitboxes())
-            {
-                string activeIndices = string.Join(", ", character.GetActiveHitboxIndices());
-                Debug.LogError($"[Hitbox Mismatch] State 'Idle' entered, but hitboxes [{activeIndices}] were still active. This indicates a missing 'DisableAttackHitboxByIndex' event in the previous state.");
-            }
-            
             // 안전장치: 모든 히트박스를 강제로 비활성화하고 시작합니다.
             character.DisableAllAttackHitboxes();
         }

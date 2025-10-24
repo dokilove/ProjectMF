@@ -30,6 +30,7 @@ public class BattleUIController : MonoBehaviour
     // 플레이어 UI를 설정하거나 업데이트합니다.
     public void SetupPlayerUI(BattleCharacter player)
     {
+        if (player == null) return;
         if (m_PlayerHPBar == null)
         {
             m_PlayerHPBar = new HPBarController(hpBarTemplate);
@@ -38,6 +39,14 @@ public class BattleUIController : MonoBehaviour
         m_PlayerHPBar.SetData(player.Stats);
         m_PlayerHPBar.SetCharacterType(true); // 플레이어 타입으로 설정 (녹색)
         m_PlayerHPBar.SetSelected(true); // 플레이어는 항상 선택된 상태로 표시
+
+        // HP 변경 이벤트 구독
+        Debug.Log($"[UI] Subscribing to OnHPChanged for Player: {player.name}");
+        player.OnHPChanged += (currentHP, maxHP) => 
+        {
+            Debug.Log($"[UI] Received OnHPChanged for Player. New HP: {currentHP}/{maxHP}");
+            m_PlayerHPBar.UpdateHP(currentHP, maxHP);
+        };
     }
 
     // 모든 적 UI를 설정합니다.
@@ -48,20 +57,25 @@ public class BattleUIController : MonoBehaviour
 
         foreach (var enemy in enemies)
         {
+            if (enemy == null) continue;
+
             var newBarController = new HPBarController(hpBarTemplate);
             newBarController.SetData(enemy.Stats);
             newBarController.SetCharacterType(false); // 적 타입으로 설정 (빨강)
             m_EnemyHPContainer.Add(newBarController.RootElement);
             m_EnemyHPBarMap.Add(enemy, newBarController);
-        }
-    }
 
-    // 특정 적의 HP UI를 업데이트합니다.
-    public void UpdateEnemyHP(BattleCharacter enemy)
-    {
-        if (m_EnemyHPBarMap.TryGetValue(enemy, out HPBarController barController))
-        {
-            barController.SetData(enemy.Stats);
+            // 로컬 변수를 사용하여 클로저 문제 방지
+            BattleCharacter currentEnemy = enemy;
+            HPBarController currentBar = newBarController;
+
+            // HP 변경 이벤트 구독
+            Debug.Log($"[UI] Subscribing to OnHPChanged for Enemy: {currentEnemy.name}");
+            currentEnemy.OnHPChanged += (currentHP, maxHP) =>
+            {
+                Debug.Log($"[UI] Received OnHPChanged for {currentEnemy.name}. New HP: {currentHP}/{maxHP}");
+                currentBar.UpdateHP(currentHP, maxHP);
+            };
         }
     }
 

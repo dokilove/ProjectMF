@@ -1,93 +1,142 @@
 using UnityEngine;
 
-// 이 스크립트를 충돌 박스(Collider)가 있는 게임 오브젝트에 추가하면,
-// 게임 뷰(Game View)에서 충돌 박스의 형태를 시각적으로 확인할 수 있습니다.
-[RequireComponent(typeof(BoxCollider))]
 public class DebugHitboxVisualizer : MonoBehaviour
 {
+    [Header("Display Settings")]
     [Tooltip("게임 실행 중에도 시각화를 표시할지 여부")]
     public bool showInGame = true;
+    [Tooltip("콜라이더가 활성화되어있으면 항상 보이게 할지 여부 (몸체 등)")]
+    public bool passivelyVisible = false;
 
-    [Tooltip("시각화에 사용할 색상")]
-    public Color visualizerColor = new Color(1f, 0f, 0f, 0.3f); // 기본값: 반투명 빨간색
+    [Header("Color Settings")]
+    [Tooltip("기본 시각화 색상")]
+    public Color visualizerColor = new Color(1f, 0f, 0f, 0.3f);
+    [Tooltip("공격 적중 시 변경될 색상")]
+    public Color hitColor = new Color(1f, 1f, 0f, 0.5f);
 
-    private GameObject visualizerCube;
-    private BoxCollider boxCollider;
+    private GameObject visualizerObject;
+    private Collider genericCollider;
+    private Renderer visualizerRenderer;
+    private Material visualizerMaterial;
+    private Color originalColor;
+    private bool isVisuallyActive = false;
 
     void Awake()
     {
-        boxCollider = GetComponent<BoxCollider>();
+        genericCollider = GetComponent<Collider>();
+        if (genericCollider == null) { Destroy(this); return; }
 
-        // 시각화를 위한 큐브 생성
-        visualizerCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        visualizerCube.name = "HitboxVisualizer";
-        
-        // 큐브의 콜라이더는 충돌에 영향을 주면 안 되므로 제거
-        Destroy(visualizerCube.GetComponent<Collider>());
+        CreateVisualizerObject();
+        if (visualizerObject == null) { Destroy(this); return; }
 
-        // 시각화 큐브를 이 히트박스의 자식으로 설정
-        visualizerCube.transform.SetParent(transform);
+        SetupTransparentMaterial();
+        visualizerObject.layer = LayerMask.NameToLayer("Ignore Raycast");
         
-        // URP용 반투명 재질 생성 및 설정
-        Renderer cubeRenderer = visualizerCube.GetComponent<Renderer>();
+        originalColor = visualizerColor;
+    }
+
+    void CreateVisualizerObject()
+    {
+        if (genericCollider is BoxCollider) visualizerObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        else if (genericCollider is SphereCollider) visualizerObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        else if (genericCollider is CapsuleCollider) visualizerObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        else return;
+
+        visualizerObject.name = "HitboxVisualizer";
+        Destroy(visualizerObject.GetComponent<Collider>());
+        visualizerObject.transform.SetParent(transform);
+        visualizerRenderer = visualizerObject.GetComponent<Renderer>();
+    }
+
+    void SetupTransparentMaterial()
+    {
         Shader urpLitShader = Shader.Find("Universal Render Pipeline/Lit");
-        if (urpLitShader == null)
+        if (urpLitShader == null) urpLitShader = Shader.Find("URP/Lit");
+        if (urpLitShader == null) { Debug.LogError("URP 'Lit' shader not found."); return; }
+
+        visualizerMaterial = new Material(urpLitShader);
+        visualizerMaterial.SetFloat("_Surface", 1);
+        visualizerMaterial.SetFloat("_Blend", 0);
+        visualizerMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        visualizerMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        visualizerMaterial.SetInt("_ZWrite", 0);
+        visualizerMaterial.DisableKeyword("_ALPHATEST_ON");
+        visualizerMaterial.EnableKeyword("_ALPHABLEND_ON");
+        visualizerMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        visualizerMaterial.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        
+        visualizerMaterial.SetColor("_BaseColor", visualizerColor);
+        
+        visualizerRenderer.material = visualizerMaterial;
+        visualizerRenderer.receiveShadows = false;
+        visualizerRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+    }
+
+    public void SetVisualizerActive(bool active)
+    {
+        isVisuallyActive = active;
+        if (active)
         {
-            Debug.LogError("URP 'Lit' 셰이더를 찾을 수 없습니다. Universal Render Pipeline 패키지가 설치되어 있는지 확인해주세요.");
-            // 대체 셰이더로 시도 (구버전 URP)
-            urpLitShader = Shader.Find("URP/Lit"); 
-            if(urpLitShader == null) return;
+            visualizerMaterial.SetColor("_BaseColor", originalColor);
         }
+    }
 
-        Material transparentMaterial = new Material(urpLitShader);
-        
-        // URP Lit 셰이더를 투명 모드로 설정
-        transparentMaterial.SetFloat("_Surface", 1); // 1 = Transparent
-        transparentMaterial.SetFloat("_Blend", 0);   // 0 = Alpha
-        transparentMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        transparentMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        transparentMaterial.SetInt("_ZWrite", 0);
-        transparentMaterial.DisableKeyword("_ALPHATEST_ON");
-        transparentMaterial.EnableKeyword("_ALPHABLEND_ON");
-        transparentMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        transparentMaterial.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-        
-        transparentMaterial.SetColor("_BaseColor", visualizerColor); // URP에서는 _BaseColor 프로퍼티 사용
-        
-        cubeRenderer.material = transparentMaterial;
-
-        // 광원에 영향을 받지 않도록 설정 (선택 사항)
-        cubeRenderer.receiveShadows = false;
-        cubeRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        
-        // 시각화 큐브가 다른 상호작용을 일으키지 않도록 레이어 설정
-        visualizerCube.layer = LayerMask.NameToLayer("Ignore Raycast");
+    public void NotifyHit()
+    {
+        if (visualizerMaterial != null)
+        {
+            visualizerMaterial.SetColor("_BaseColor", hitColor);
+        }
     }
 
     void Update()
     {
-        if (visualizerCube == null || boxCollider == null) return;
+        if (visualizerObject == null || genericCollider == null) return;
 
-        // 실시간으로 콜라이더 크기/위치 변경에 대응
-        visualizerCube.transform.localPosition = boxCollider.center;
-        visualizerCube.transform.localScale = boxCollider.size;
+        UpdateVisualizerTransform();
 
-        // showInGame 플래그에 따라 렌더러 활성화/비활성화
-        var renderer = visualizerCube.GetComponent<Renderer>();
-        if (renderer.enabled != showInGame)
+        bool shouldBeVisible;
+        if (passivelyVisible)
         {
-            renderer.enabled = showInGame;
+            // 패시브 모드: 콜라이더의 활성화 상태를 직접 따라감
+            shouldBeVisible = showInGame && genericCollider.enabled;
+        }
+        else
+        {
+            // 액티브 모드: 외부 스크립트(AttackHitbox)의 제어를 받음
+            shouldBeVisible = showInGame && isVisuallyActive;
+        }
+
+        if (visualizerRenderer.enabled != shouldBeVisible)
+        { 
+            visualizerRenderer.enabled = shouldBeVisible;
         }
     }
 
-    // Gizmos for Scene view visualization
-    void OnDrawGizmos()
+    void UpdateVisualizerTransform()
     {
-        if (!showInGame && TryGetComponent<BoxCollider>(out var collider)) 
+        if (genericCollider is BoxCollider box)
         {
-            Gizmos.color = visualizerColor;
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawCube(collider.center, collider.size);
+            visualizerObject.transform.localPosition = box.center;
+            visualizerObject.transform.localScale = box.size;
+            visualizerObject.transform.localRotation = Quaternion.identity;
+        }
+        else if (genericCollider is SphereCollider sphere)
+        {
+            visualizerObject.transform.localPosition = sphere.center;
+            float diameter = sphere.radius * 2;
+            visualizerObject.transform.localScale = new Vector3(diameter, diameter, diameter);
+            visualizerObject.transform.localRotation = Quaternion.identity;
+        }
+        else if (genericCollider is CapsuleCollider capsule)
+        {
+            visualizerObject.transform.localPosition = capsule.center;
+            float height = capsule.height;
+            float radius = capsule.radius;
+            visualizerObject.transform.localScale = new Vector3(radius * 2, height / 2, radius * 2);
+            visualizerObject.transform.localRotation = Quaternion.identity;
+            if (capsule.direction == 0) visualizerObject.transform.Rotate(0, 0, 90);
+            else if (capsule.direction == 2) visualizerObject.transform.Rotate(90, 0, 0);
         }
     }
 }

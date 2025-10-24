@@ -1,30 +1,24 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 // 전투 씬에 있는 캐릭터(플레이어, 적)에 대한 공통 로직을 처리합니다.
-public class BattleCharacter : MonoBehaviour
+public class BattleCharacter : MonoBehaviour, IDamageable
 {
     public UnitStats Stats { get; private set; }
     public bool IsPlayer { get; private set; }
     public Vector3 OriginalPosition { get; private set; }
+    public event Action<int, int> OnHPChanged; // currentHP, maxHP
 
-    [SerializeField] private Color selectedColor = Color.yellow;
-    [SerializeField] private GameObject[] attackHitboxes; // 공격 판정에 사용할 충돌 박스 배열
+    [SerializeField] private AttackHitbox[] attackHitboxes; // 여러개의 AttackHitbox를 관리
 
     [Header("Target Indicator")]
-    [SerializeField] private GameObject targetIndicatorPrefab; // 1단계에서 만들 화살표 프리팹
-    [SerializeField] private Transform indicatorAnchor;      // 2단계에서 만들 위치 앵커
+    [SerializeField] private GameObject targetIndicatorPrefab;
+    [SerializeField] private Transform indicatorAnchor;
 
-    private GameObject instantiatedIndicator; // 생성된 화살표 인스턴스를 저장할 변수
-
-    // 디버깅용: 활성화된 히트박스 인덱스 추적
-    private readonly HashSet<int> _activeHitboxIndices = new HashSet<int>();
-
-    private float currentMoveSpeed; // Action 페이즈에서의 이동 속도 (UnitStats에서 가져옴)
-    private Renderer[] characterRenderers;
-    private Color[] originalColors;
-    private Animator animator; // Animator 컴포넌트 추가
+    private GameObject instantiatedIndicator;
+    private float currentMoveSpeed;
+    private Animator animator;
 
     // 이동 관련
     private bool isMoving = false;
@@ -32,27 +26,10 @@ public class BattleCharacter : MonoBehaviour
 
     void Awake()
     {
-        // 자식 오브젝트에 있는 모든 렌더러를 가져옵니다.
-        characterRenderers = GetComponentsInChildren<Renderer>();
-        
-        if (characterRenderers != null && characterRenderers.Length > 0)
-        {
-            // 원래 색상을 저장할 배열을 초기화합니다.
-            originalColors = new Color[characterRenderers.Length];
-
-            for (int i = 0; i < characterRenderers.Length; i++)
-            {
-                // 각 렌더러에 대해 재질 인스턴스를 생성하여 원본 재질이 바뀌지 않도록 합니다.
-                characterRenderers[i].material = new Material(characterRenderers[i].material);
-                // 생성된 인스턴스의 원래 색상을 저장합니다.
-                originalColors[i] = characterRenderers[i].material.color;
-            }
-        }
-
-        animator = GetComponent<Animator>(); // Animator 컴포넌트 가져오기
+        animator = GetComponent<Animator>();
         if (animator == null)
         {
-            Debug.LogWarning($"{gameObject.name}에 Animator 컴포넌트가 없습니다. 애니메이션을 재생할 수 없습니다.");
+            Debug.LogWarning($"{gameObject.name}에 Animator 컴포넌트가 없습니다.");
         }
     }
 
@@ -62,58 +39,80 @@ public class BattleCharacter : MonoBehaviour
         DisableAllAttackHitboxes();
     }
 
-    void Update()
-    {
-        if (isMoving && targetToMoveTowards != null)
-        {
-            // 목표를 향해 이동
-            // transform.position = Vector3.MoveTowards(transform.position, currentMoveSpeed * Time.deltaTime);
-        }
-    }
-
-    // 캐릭터 데이터로 초기화
     public void Initialize(UnitStats stats, Vector3 originalPosition, bool isPlayer = false)
     {
         this.Stats = stats;
         this.IsPlayer = isPlayer;
         this.OriginalPosition = originalPosition;
-        this.name = $"{stats.unitName}_Battle"; // 씬에서 쉽게 식별하도록 이름 변경
-        this.currentMoveSpeed = stats.moveSpeed; // UnitStats에서 이동 속도 설정
+        this.name = $"{stats.unitName}_Battle";
+        this.currentMoveSpeed = stats.moveSpeed;
+
+        // 모든 AttackHitbox에 오너(attacker)가 자신임을 알려줍니다.
+        if (attackHitboxes != null)
+        {
+            foreach (var hitbox in attackHitboxes)
+            {
+                if (hitbox != null) hitbox.Initialize(this);
+            }
+        }
     }
 
-    // Action 페이즈 이동 시작
+    public int GetAttackPower()
+    {
+        return Stats.attackPower;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Stats.currentHP -= damage;
+        if (Stats.currentHP < 0)
+        {
+            Stats.currentHP = 0;
+        }
+
+        Debug.Log($"[Event] Firing OnHPChanged for {name} with HP {Stats.currentHP}/{Stats.maxHP}");
+        OnHPChanged?.Invoke(Stats.currentHP, Stats.maxHP);
+        Debug.Log($"{name} took {damage} damage. Current HP: {Stats.currentHP}");
+
+        if (Stats.currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    public event Action<BattleCharacter> OnDeath;
+
+    private void Die()
+    {
+        Debug.Log($"{name} has been defeated.");
+        OnDeath?.Invoke(this);
+        gameObject.SetActive(false);
+    }
+
+    #region Movement & Selection
     public void StartActionMovement(Transform target)
     {
         targetToMoveTowards = target;
         isMoving = true;
     }
 
-    // Action 페이즈 이동 중지 및 위치 리셋
     public void StopActionMovement()
     {
         isMoving = false;
         targetToMoveTowards = null;
-        transform.position = OriginalPosition; // 원래 위치로 복귀
+        transform.position = OriginalPosition;
     }
 
-    // 캐릭터가 선택되었을 때 호출
     public void Select()
     {
-        // 새로운 화살표 생성 로직
-        if (targetIndicatorPrefab != null && indicatorAnchor != null)
+        if (targetIndicatorPrefab != null && indicatorAnchor != null && instantiatedIndicator == null)
         {
-            // 이미 생성된게 있다면 중복 생성 방지
-            if (instantiatedIndicator == null)
-            {
-                instantiatedIndicator = Instantiate(targetIndicatorPrefab, indicatorAnchor);
-            }
+            instantiatedIndicator = Instantiate(targetIndicatorPrefab, indicatorAnchor);
         }
     }
 
-    // 캐릭터 선택이 해제되었을 때 호출
     public void Deselect()
     {
-        // 새로운 화살표 파괴 로직
         if (instantiatedIndicator != null)
         {
             Destroy(instantiatedIndicator);
@@ -121,7 +120,6 @@ public class BattleCharacter : MonoBehaviour
         }
     }
 
-    // 외부에서 표시기(화살표)의 활성 상태를 제어합니다.
     public void SetIndicatorActive(bool isActive)
     {
         if (instantiatedIndicator != null)
@@ -129,71 +127,83 @@ public class BattleCharacter : MonoBehaviour
             instantiatedIndicator.SetActive(isActive);
         }
     }
+    #endregion
 
-    // 공격 애니메이션 재생
+    #region Animation & Hitbox Control
     public void PlayAttackAnimation()
     {
         if (animator != null)
         {
-            animator.SetTrigger("Attack"); // "Attack" 트리거 파라미터를 설정하여 애니메이션 재생
-            Debug.Log($"{gameObject.name} - Attack Animation Triggered!");
+            animator.SetTrigger("Attack");
         }
     }
 
-    #region Animation Events & Hitbox Control
-
+    // 애니메이션 이벤트에서 인덱스로 히트박스 활성화
     public void EnableAttackHitboxByIndex(int index)
     {
         if (attackHitboxes != null && index >= 0 && index < attackHitboxes.Length && attackHitboxes[index] != null)
         {
             attackHitboxes[index].SetActive(true);
-            _activeHitboxIndices.Add(index);
         }
         else
         {
-            Debug.LogWarning($"{gameObject.name} - EnableAttackHitboxByIndex: Invalid index {index} or hitbox is not assigned.");
+            Debug.LogError($"[BattleCharacter] Failed to find AttackHitbox at index {index}. Is the 'Attack Hitboxes' array set up correctly in the Inspector?");
         }
     }
 
+    // 애니메이션 이벤트에서 인덱스로 히트박스 비활성화
     public void DisableAttackHitboxByIndex(int index)
     {
         if (attackHitboxes != null && index >= 0 && index < attackHitboxes.Length && attackHitboxes[index] != null)
         {
             attackHitboxes[index].SetActive(false);
-            _activeHitboxIndices.Remove(index);
         }
         else
         {
-            Debug.LogWarning($"{gameObject.name} - DisableAttackHitboxByIndex: Invalid index {index} or hitbox is not assigned.");
+            Debug.LogError($"[BattleCharacter] Failed to find AttackHitbox at index {index}. Is the 'Attack Hitboxes' array set up correctly in the Inspector?");
         }
     }
 
-    // 모든 활성화된 공격 히트박스를 비활성화합니다.
+    // 모든 히트박스를 비활성화하는 안전장치
     public void DisableAllAttackHitboxes()
     {
         if (attackHitboxes == null) return;
-
         foreach (var hitbox in attackHitboxes)
         {
-            if (hitbox != null && hitbox.activeSelf)
-            {
-                hitbox.SetActive(false);
-            }
+            if (hitbox != null) hitbox.SetActive(false);
         }
-        _activeHitboxIndices.Clear();
     }
-
-    // 디버깅: 활성화된 히트박스가 있는지 확인
+    
+    // 디버깅 및 상태 확인용 (Null-safe)
     public bool HasActiveHitboxes()
     {
-        return _activeHitboxIndices.Count > 0;
+        if (attackHitboxes == null) return false;
+        foreach (var hitbox in attackHitboxes)
+        {
+            if (hitbox != null) // 널 체크를 먼저 수행
+            {
+                Collider col = hitbox.GetComponent<Collider>();
+                if (col != null && col.enabled)
+                    return true;
+            }
+        }
+        return false;
     }
 
-    // 디버깅: 활성화된 히트박스 인덱스 목록 가져오기
     public IEnumerable<int> GetActiveHitboxIndices()
     {
-        return _activeHitboxIndices;
+        if (attackHitboxes == null) yield break;
+        for(int i = 0; i < attackHitboxes.Length; i++)
+        {
+            if (attackHitboxes[i] != null) // 널 체크를 먼저 수행
+            {
+                Collider col = attackHitboxes[i].GetComponent<Collider>();
+                if (col != null && col.enabled)
+                {
+                    yield return i;
+                }
+            }
+        }
     }
-
     #endregion
 }

@@ -81,7 +81,7 @@ public class BattleManager : MonoBehaviour
             playerInputController.OnCancelEvent += HandleBattleCancel;
             playerInputController.OnSubmitEvent += HandleBattleSubmit;
             playerInputController.OnNavigateEvent += HandleNavigation;
-            playerInputController.OnBattleAttackEvent += HandleBattleAttackInput; // Attack event subscription
+            playerInputController.OnBattleAttackEvent += HandleBattleAttackInput;
         }
 
         playerStats = GameDataManager.Instance.playerStats;
@@ -98,9 +98,9 @@ public class BattleManager : MonoBehaviour
                     {
                         unitName = enemyData.stats.unitName,
                         maxHP = enemyData.stats.maxHP,
-                        currentHP = enemyData.stats.currentHP,
+                        currentHP = enemyData.stats.maxHP, // [수정] 항상 최대 HP로 시작
                         attackPower = enemyData.stats.attackPower,
-                        moveSpeed = enemyData.stats.moveSpeed // moveSpeed 추가
+                        moveSpeed = enemyData.stats.moveSpeed
                     }
                 };
                 currentEnemies.Add(battleInstance);
@@ -109,14 +109,14 @@ public class BattleManager : MonoBehaviour
 
         if (currentEnemies.Count == 0) return;
 
-        // Check if we are already in the battle scene (for testing)
         if (SceneManager.GetActiveScene().name == battleSceneName)
         {
             isTestMode = true;
             StartCoroutine(SetupBattleScene());
         }
-        else // Normal flow from another scene
+        else
         {
+            isTestMode = false; // 던전에서 시작 시 테스트 모드 해제
             EventSystem currentEventSystem = FindFirstObjectByType<EventSystem>();
             if (currentEventSystem != null)
             {
@@ -129,11 +129,10 @@ public class BattleManager : MonoBehaviour
             EnemyAI[] allEnemiesInDungeon = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
             foreach (EnemyAI e in allEnemiesInDungeon) e.SetBattleMode(true);
 
-            // Deactivate all root objects in the dungeon scene except for the BattleManager itself
             deactivatedDungeonObjects.Clear();
             foreach (GameObject rootObj in currentMainScene.GetRootGameObjects())
             {
-                if (rootObj != this.gameObject) // Don't disable the BattleManager
+                if (rootObj != this.gameObject)
                 {
                     rootObj.SetActive(false);
                     deactivatedDungeonObjects.Add(rootObj);
@@ -167,7 +166,12 @@ public class BattleManager : MonoBehaviour
             }
         }
 
+        foreach(var enemy in activeEnemies) 
+        {
+            if(enemy != null) enemy.OnDeath -= HandleEnemyDeath;
+        }
         activeEnemies.Clear();
+
         if (battlefield.enemySpawnCenter != null)
         {
             int enemyCount = currentEnemies.Count;
@@ -186,6 +190,7 @@ public class BattleManager : MonoBehaviour
                     if (battleCharacter != null)
                     {
                         battleCharacter.Initialize(enemyToSpawn.stats, spawnPosition);
+                        battleCharacter.OnDeath += HandleEnemyDeath;
                         activeEnemies.Add(battleCharacter);
                     }
                 }
@@ -194,27 +199,19 @@ public class BattleManager : MonoBehaviour
 
         if (activeEnemies.Count > 0) selectedEnemyIndex = 0;
 
-        battleUIController = FindFirstObjectByType<BattleUIController>(); // FindObjectOfType 변경
+        battleUIController = FindFirstObjectByType<BattleUIController>();
         battleCameraController = FindFirstObjectByType<BattleCameraController>();
 
-        // BattleCameraController에 플레이어 타겟 설정
-        // if (battleCameraController != null && playerBattleCharacter != null)
-        // {
-        //     battleCameraController.playerTarget = playerBattleCharacter.transform;
-        // }
-
-        if (battleUIController != null) // hpDisplay를 battleUIController로 변경
+        if (battleUIController != null)
         {
-            battleUIController.SetupPlayerUI(playerBattleCharacter); // UpdatePlayerHP를 SetupPlayerUI로 변경
+            battleUIController.SetupPlayerUI(playerBattleCharacter);
             battleUIController.SetupEnemyUI(activeEnemies);
         }
 
-        // 입력 로그 UI를 찾아 컨트롤러를 연결합니다.
         InputDisplayController inputDisplay = FindFirstObjectByType<InputDisplayController>();
         if (inputDisplay != null && this.playerInputController != null)
         {
             inputDisplay.inputController = this.playerInputController;
-            // OnEnable이 이미 호출되었을 수 있으므로, 수동으로 이벤트 구독을 활성화합니다.
             inputDisplay.enabled = false;
             inputDisplay.enabled = true;
         }
@@ -229,28 +226,24 @@ public class BattleManager : MonoBehaviour
         currentPhase = BattlePhase.Command;
         isActionPhase = false;
 
-        if (playerBattleCharacter != null)
-        {
-            playerBattleCharacter.StopActionMovement();
-        }
-        foreach (var enemy in activeEnemies)
-        {
-            enemy.StopActionMovement();
-        }
-
         if (playerInputController != null)
         {
             playerInputController.OnCancelEvent -= HandleBattleCancel;
             playerInputController.OnSubmitEvent -= HandleBattleSubmit;
             playerInputController.OnNavigateEvent -= HandleNavigation;
-            playerInputController.OnBattleAttackEvent -= HandleBattleAttackInput; // Attack event unsubscription
+            playerInputController.OnBattleAttackEvent -= HandleBattleAttackInput;
             playerInputController.EnableDungeonControls();
+        }
+
+        if(playerBattleCharacter != null) { /* playerBattleCharacter.OnDeath -= HandlePlayerDeath; */ }
+        foreach(var enemy in activeEnemies)
+        {
+            if(enemy != null) enemy.OnDeath -= HandleEnemyDeath;
         }
 
         battleCameraController = null;
         SceneManager.UnloadSceneAsync(battleSceneName);
 
-        // Reactivate all the objects from the dungeon scene that were disabled
         foreach (GameObject rootObj in deactivatedDungeonObjects)
         {
             if(rootObj != null) rootObj.SetActive(true);
@@ -285,19 +278,22 @@ public class BattleManager : MonoBehaviour
         currentPhase = BattlePhase.Command;
         isActionPhase = false;
 
-        // 커맨드 단계로 돌아왔으므로 표시기를 다시 활성화합니다.
-        if (SelectedEnemy != null) SelectedEnemy.SetIndicatorActive(true);
-
         foreach (var enemy in activeEnemies)
         {
-            enemy.StopActionMovement(); // 이동 중지 및 위치 리셋
             enemy.gameObject.SetActive(true);
+            enemy.StopActionMovement();
         }
+        if(playerBattleCharacter != null) playerBattleCharacter.StopActionMovement();
 
-        if (battleUIController != null) // hpDisplay를 battleUIController로 변경
+        if (selectedEnemyIndex >= activeEnemies.Count) selectedEnemyIndex = activeEnemies.Count - 1;
+        if (selectedEnemyIndex < 0 && activeEnemies.Count > 0) selectedEnemyIndex = 0;
+
+        UpdateSelection();
+
+        if (battleUIController != null)
         {
             battleUIController.ShowAllEnemyUI();
-            battleUIController.UpdateSelectionUI(SelectedEnemy);
+            if(SelectedEnemy != null) battleUIController.UpdateSelectionUI(SelectedEnemy);
         }
 
         if (playerInputController != null) playerInputController.EnableBattleCommandControls();
@@ -312,10 +308,8 @@ public class BattleManager : MonoBehaviour
                 if (SelectedEnemy == null) return;
                 currentPhase = BattlePhase.Selection;
 
-                // 커맨드 단계가 끝나므로 표시기를 비활성화합니다.
                 if (SelectedEnemy != null) SelectedEnemy.SetIndicatorActive(false);
 
-                // 플레이어와 선택된 적을 Selection 페이즈 위치로 이동시킵니다.
                 if (battlefield != null)
                 {
                     if (playerBattleCharacter != null && battlefield.playerSelectionSpawnPoint != null)
@@ -332,7 +326,7 @@ public class BattleManager : MonoBehaviour
                 {
                     if (enemy != SelectedEnemy) enemy.gameObject.SetActive(false);
                 }
-                if (battleUIController != null) battleUIController.ShowOnlySelectedUI(SelectedEnemy); // hpDisplay를 battleUIController로 변경
+                if (battleUIController != null) battleUIController.ShowOnlySelectedUI(SelectedEnemy);
                 if (battleCameraController != null) battleCameraController.SwitchToSelectionView();
                 break;
 
@@ -340,11 +334,9 @@ public class BattleManager : MonoBehaviour
                 currentPhase = BattlePhase.Action;
                 isActionPhase = true;
 
-                // 선택된 적만 플레이어를 향해 이동 시작
                 if (playerBattleCharacter != null && SelectedEnemy != null)
                 {
                     SelectedEnemy.StartActionMovement(playerBattleCharacter.transform);
-                    // 플레이어도 선택된 적을 향해 이동 시작
                     playerBattleCharacter.StartActionMovement(SelectedEnemy.transform);
                 }
 
@@ -354,6 +346,36 @@ public class BattleManager : MonoBehaviour
                     if (battleCameraController != null) battleCameraController.SwitchToActionView();
                 }
                 break;
+        }
+    }
+
+    private void HandleEnemyDeath(BattleCharacter deadEnemy)
+    {
+        if (deadEnemy == null) return;
+
+        deadEnemy.OnDeath -= HandleEnemyDeath;
+        activeEnemies.Remove(deadEnemy);
+
+        if (activeEnemies.Count == 0)
+        {
+            Debug.Log("All enemies defeated! Battle won!");
+            if (isTestMode)
+            {
+                Debug.Log("Test Mode: Restarting battle.");
+                RestartBattle();
+            }
+            else
+            {
+                EndBattle();
+            }
+        }
+        else
+        {
+            Debug.Log($"{deadEnemy.name} defeated. Returning to Command Phase.");
+            if (currentPhase == BattlePhase.Action || currentPhase == BattlePhase.Selection)
+            {
+                GoToCommandPhase();
+            }
         }
     }
 
@@ -379,7 +401,12 @@ public class BattleManager : MonoBehaviour
 
     private void RestartBattle()
     {
-        // 1. 기존 전투 객체들 정리
+        if(playerBattleCharacter != null) { /* playerBattleCharacter.OnDeath -= HandlePlayerDeath; */ }
+        foreach(var enemy in activeEnemies)
+        {
+            if(enemy != null) enemy.OnDeath -= HandleEnemyDeath;
+        }
+
         if (playerBattleCharacter != null)
         {
             Destroy(playerBattleCharacter.gameObject);
@@ -393,19 +420,22 @@ public class BattleManager : MonoBehaviour
         }
         activeEnemies.Clear();
 
-        // 2. UI 리셋 (BattleUIController에 ResetUI 메소드 추가 필요)
         if (battleUIController != null)
         {
             battleUIController.ResetUI();
         }
 
-        // 3. 전투 상태 초기화
+        // [추가] 재시작 전, 적들의 HP를 다시 채웁니다.
+        foreach (var enemyData in currentEnemies)
+        {
+            enemyData.stats.currentHP = enemyData.stats.maxHP;
+        }
+
         currentPhase = BattlePhase.Command;
         isActionPhase = false;
         selectedEnemyIndex = -1;
         SelectedEnemy = null;
 
-        // 4. 전투 재설정
         StartCoroutine(SetupBattleScene());
     }
 
@@ -425,22 +455,30 @@ public class BattleManager : MonoBehaviour
 
     private void UpdateSelection()
     {
+        if (activeEnemies.Count == 0) 
+        {
+            SelectedEnemy = null;
+            return;
+        }
+
+        if (selectedEnemyIndex < 0) selectedEnemyIndex = 0;
+        if (selectedEnemyIndex >= activeEnemies.Count) selectedEnemyIndex = activeEnemies.Count - 1;
+
         for (int i = 0; i < activeEnemies.Count; i++)
         {
             if (i == selectedEnemyIndex)
             {
                 activeEnemies[i].Select();
-                activeEnemies[i].SetIndicatorActive(true); // 표시기 활성화
+                activeEnemies[i].SetIndicatorActive(true);
                 SelectedEnemy = activeEnemies[i];
 
-                // 카메라 컨트롤러에 타겟 설정 및 뷰 전환
                 if (battleCameraController != null) 
                 {
                     battleCameraController.commandTarget = SelectedEnemy.transform;
                     battleCameraController.SwitchToCommandView();
                 }
 
-                if (battleUIController != null) battleUIController.UpdateSelectionUI(SelectedEnemy); // hpDisplay를 battleUIController로 변경
+                if (battleUIController != null) battleUIController.UpdateSelectionUI(SelectedEnemy);
             }
             else
             {

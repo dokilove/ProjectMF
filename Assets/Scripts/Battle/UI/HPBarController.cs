@@ -39,11 +39,17 @@ public class HPBarController
         if (stats == null) return;
 
         m_NameLabel.text = stats.unitName;
-        
-        float fillPercentage = (stats.maxHP > 0) ? (float)stats.currentHP / stats.maxHP : 0;
+        UpdateHP(stats.currentHP, stats.maxHP);
+    }
+
+    // HP 값만 업데이트하는 새로운 메서드
+    public void UpdateHP(int currentHP, int maxHP)
+    {
+        Debug.Log($"[HPBar] Updating HP bar for {m_NameLabel.text} to {currentHP}/{maxHP}");
+        float fillPercentage = (maxHP > 0) ? (float)currentHP / maxHP : 0;
         m_FillElement.style.width = Length.Percent(fillPercentage * 100);
         
-        m_HpLabel.text = $"{stats.currentHP} / {stats.maxHP}";
+        m_HpLabel.text = $"{currentHP} / {maxHP}";
     }
 
     // 선택 상태를 설정합니다.
