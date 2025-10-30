@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 1349974498290129537}
   - component: {fileID: 4067328767991713865}
   - component: {fileID: 7524317867154973810}
+  - component: {fileID: 5965654758535954155}
   m_Layer: 15
   m_Name: Enemy2_Battle
   m_TagString: Untagged
@@ -82,6 +83,9 @@ MonoBehaviour:
   attackHitboxes: []
   targetIndicatorPrefab: {fileID: 1988535886886094693, guid: 0654a493cd638f444b1b58f41a5acd7c, type: 3}
   indicatorAnchor: {fileID: 1678158753016887927}
+  desiredConfrontationDistance: 3
+  confrontationTolerance: 0.5
+  gravity: -9.81
 --- !u!95 &7524317867154973810
 Animator:
   serializedVersion: 7
@@ -104,6 +108,31 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!143 &5965654758535954155
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2484055279281000640}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &9123323866188915553
 GameObject:
   m_ObjectHideFlags: 0

@@ -18,5 +18,5 @@ MonoBehaviour:
     maxHP: 120
     currentHP: 120
     attackPower: 20
-    moveSpeed: 1
+    moveSpeed: 0.2
   battlePrefab: {fileID: 2484055279281000640, guid: 11cb59471ac587c49b1f233df641c3dc, type: 3}

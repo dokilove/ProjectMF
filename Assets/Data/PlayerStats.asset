@@ -17,4 +17,4 @@ MonoBehaviour:
     maxHP: 120
     currentHP: 112
     attackPower: 20
-    moveSpeed: 1
+    moveSpeed: 0.2

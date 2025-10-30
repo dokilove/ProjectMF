@@ -202,6 +202,11 @@ public class BattleManager : MonoBehaviour
         battleUIController = FindFirstObjectByType<BattleUIController>();
         battleCameraController = FindFirstObjectByType<BattleCameraController>();
 
+        if (battleCameraController != null && playerBattleCharacter != null)
+        {
+            battleCameraController.playerTransform = playerBattleCharacter.transform;
+        }
+
         if (battleUIController != null)
         {
             battleUIController.SetupPlayerUI(playerBattleCharacter);
@@ -343,7 +348,10 @@ public class BattleManager : MonoBehaviour
                 if (playerInputController != null)
                 {
                     playerInputController.EnableBattleActionControls();
-                    if (battleCameraController != null) battleCameraController.SwitchToActionView();
+                    if (battleCameraController != null)
+                    {
+                        battleCameraController.SwitchToActionView();
+                    }
                 }
                 break;
         }
