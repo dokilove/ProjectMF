@@ -286,9 +286,9 @@ public class BattleManager : MonoBehaviour
         foreach (var enemy in activeEnemies)
         {
             enemy.gameObject.SetActive(true);
-            enemy.StopActionMovement();
+            enemy.ResetToCommandState();
         }
-        if(playerBattleCharacter != null) playerBattleCharacter.StopActionMovement();
+        if(playerBattleCharacter != null) playerBattleCharacter.ResetToCommandState();
 
         if (selectedEnemyIndex >= activeEnemies.Count) selectedEnemyIndex = activeEnemies.Count - 1;
         if (selectedEnemyIndex < 0 && activeEnemies.Count > 0) selectedEnemyIndex = 0;
@@ -319,11 +319,11 @@ public class BattleManager : MonoBehaviour
                 {
                     if (playerBattleCharacter != null && battlefield.playerSelectionSpawnPoint != null)
                     {
-                        playerBattleCharacter.transform.position = battlefield.playerSelectionSpawnPoint.position;
+                        playerBattleCharacter.SetPositionAndRotation(battlefield.playerSelectionSpawnPoint.position, battlefield.playerSelectionSpawnPoint.rotation);
                     }
                     if (SelectedEnemy != null && battlefield.enemySelectionSpawnCenter != null)
                     {
-                        SelectedEnemy.transform.position = battlefield.enemySelectionSpawnCenter.position;
+                        SelectedEnemy.SetPositionAndRotation(battlefield.enemySelectionSpawnCenter.position, battlefield.enemySelectionSpawnCenter.rotation);
                     }
                 }
 
@@ -339,11 +339,11 @@ public class BattleManager : MonoBehaviour
                 currentPhase = BattlePhase.Action;
                 isActionPhase = true;
 
-                if (playerBattleCharacter != null && SelectedEnemy != null)
-                {
-                    SelectedEnemy.StartActionMovement(playerBattleCharacter.transform);
-                    playerBattleCharacter.StartActionMovement(SelectedEnemy.transform);
-                }
+                // if (playerBattleCharacter != null && SelectedEnemy != null)
+                // {
+                //     SelectedEnemy.StartActionMovement(playerBattleCharacter.transform);
+                //     playerBattleCharacter.StartActionMovement(SelectedEnemy.transform);
+                // }
 
                 if (playerInputController != null)
                 {

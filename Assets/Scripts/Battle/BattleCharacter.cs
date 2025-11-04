@@ -54,7 +54,15 @@ public class BattleCharacter : MonoBehaviour, IDamageable
 
     void Update()
     {
-        HandleActionMovement();
+        // HandleActionMovement(); // 루트 모션을 위해 주석 처리
+
+        // 루트 모션은 수직 움직임을 처리하지 않으므로 중력만 따로 처리해줍니다.
+        if (characterController.isGrounded && verticalVelocity.y < 0)
+        {
+            verticalVelocity.y = -2f; 
+        }
+        verticalVelocity.y += gravity * Time.deltaTime;
+        characterController.Move(verticalVelocity * Time.deltaTime);
     }
 
     public void Initialize(UnitStats stats, Vector3 originalPosition, bool isPlayer = false)
@@ -66,8 +74,8 @@ public class BattleCharacter : MonoBehaviour, IDamageable
         this.name = $"{stats.unitName}_Battle";
         this.currentMoveSpeed = stats.moveSpeed;
 
-        // CharacterController는 초기에는 비활성화합니다.
-        characterController.enabled = false;
+        // CharacterController는 루트모션을 사용하기 위해 활성화된 상태로 시작합니다.
+        characterController.enabled = true; 
         verticalVelocity = Vector3.zero; // 초기화
 
         // 모든 AttackHitbox에 오너(attacker)가 자신임을 알려줍니다.
@@ -115,6 +123,7 @@ public class BattleCharacter : MonoBehaviour, IDamageable
     #region Movement & Selection
     private void HandleActionMovement()
     {
+        // 이 메소드는 Update에서 더 이상 호출되지 않습니다. (루트 모션 사용)
         if (movementTarget == null) return;
 
         Vector3 directionToTarget = (movementTarget.position - transform.position).normalized;
@@ -170,18 +179,51 @@ public class BattleCharacter : MonoBehaviour, IDamageable
 
     public void StartActionMovement(Transform target)
     {
+        // 루트 모션을 사용하므로 이 메소드는 더 이상 캐릭터를 직접 움직이지 않습니다.
+        // 타겟을 바라보는 로직 등은 필요시 남길 수 있습니다.
         movementTarget = target;
-        // 캐릭터 컨트롤러를 활성화하여 이동을 시작합니다.
-        characterController.enabled = true;
     }
 
     public void StopActionMovement()
     {
+        // 루트 모션을 사용하므로 이 메소드는 더 이상 캐릭터를 직접 움직이지 않습니다.
         movementTarget = null;
-        // 캐릭터 컨트롤러를 비활성화하고 원래 위치로 되돌립니다.
-        characterController.enabled = false;
-        transform.position = OriginalPosition;
-        transform.rotation = OriginalRotation; // Changed
+        // Action 페이즈 종료 시 위치를 리셋할 필요가 없으므로 관련 코드 제거
+    }
+
+    public void ResetToCommandState()
+    {
+        // 캐릭터를 전투 시작 시의 위치와 회전으로 되돌립니다.
+        // CharacterController가 활성화된 상태에서 Transform을 직접 바꾸면 충돌할 수 있으므로 잠시 비활성화합니다.
+        if (characterController != null && characterController.enabled)
+        {
+            characterController.enabled = false;
+            transform.position = OriginalPosition;
+            transform.rotation = OriginalRotation;
+            characterController.enabled = true;
+        }
+        else
+        {
+            transform.position = OriginalPosition;
+            transform.rotation = OriginalRotation;
+        }
+        movementTarget = null;
+    }
+
+    public void SetPositionAndRotation(Vector3 position, Quaternion rotation)
+    {
+        if (characterController != null && characterController.enabled)
+        {
+            characterController.enabled = false;
+            transform.position = position;
+            transform.rotation = rotation;
+            characterController.enabled = true;
+        }
+        else
+        {
+            transform.position = position;
+            transform.rotation = rotation;
+        }
     }
 
     public void Select()
