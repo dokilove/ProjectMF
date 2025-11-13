@@ -8,6 +8,8 @@ public class BattleCharacter : MonoBehaviour, IDamageable
 {
     public UnitStats Stats { get; private set; }
     public bool IsPlayer { get; private set; }
+    public bool IsInvincible { get; set; } // 무적 상태 플래그
+    public Transform CurrentTarget { get; set; } // 현재 공격 대상 (콤보 중에도 유지)
     public Vector3 OriginalPosition { get; private set; }
     public Quaternion OriginalRotation { get; private set; } // Added
     public event Action<int, int> OnHPChanged; // currentHP, maxHP
@@ -95,6 +97,8 @@ public class BattleCharacter : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
+        if (IsInvincible) return; // 무적 상태일 경우 대미지 처리 중단
+
         Stats.currentHP -= damage;
         if (Stats.currentHP < 0)
         {
@@ -208,6 +212,13 @@ public class BattleCharacter : MonoBehaviour, IDamageable
             transform.rotation = OriginalRotation;
         }
         movementTarget = null;
+
+        // 애니메이터 상태를 Idle로 초기화
+        if (animator != null)
+        {
+            animator.SetTrigger("ResetToIdle"); // Animator에 "ResetToIdle" 트리거가 있어야 합니다.
+            animator.ResetTrigger("Attack"); // 혹시 모를 Attack 트리거도 초기화
+        }
     }
 
     public void SetPositionAndRotation(Vector3 position, Quaternion rotation)
@@ -253,11 +264,25 @@ public class BattleCharacter : MonoBehaviour, IDamageable
     #endregion
 
     #region Animation & Hitbox Control
-    public void PlayAttackAnimation()
+    public void PlayAttackAnimation(Transform target)
     {
         if (animator != null)
         {
+            CurrentTarget = target; // 현재 타겟 저장
+            RotateTowardsCurrentTarget(); // 타겟 방향으로 회전
+
             animator.SetTrigger("Attack");
+        }
+    }
+
+    // 현재 타겟을 향해 캐릭터를 회전시키는 함수 (콤보 중 재회전용)
+    public void RotateTowardsCurrentTarget()
+    {
+        if (CurrentTarget != null)
+        {
+            Vector3 direction = (CurrentTarget.position - transform.position).normalized;
+            direction.y = 0; // Y축 회전은 고정
+            transform.rotation = Quaternion.LookRotation(direction);
         }
     }
 
@@ -328,5 +353,41 @@ public class BattleCharacter : MonoBehaviour, IDamageable
             }
         }
     }
+
+    #region Phasing & Invincibility
+    // 애니메이션 이벤트에서 호출하여 무적/통과 상태를 시작합니다.
+    public void EnablePhasing(string phasingLayerName)
+    {
+        IsInvincible = true;
+        gameObject.layer = LayerMask.NameToLayer(phasingLayerName);
+        // Debug.Log($"Phasing Enabled: Layer set to {phasingLayerName} at {Time.time}");
+    }
+
+    // 애니메이션 이벤트에서 호출하여 무적/통과 상태를 종료합니다.
+    public void DisablePhasing(string defaultLayerName)
+    {
+        IsInvincible = false;
+        gameObject.layer = LayerMask.NameToLayer(defaultLayerName);
+        // Debug.Log($"Phasing Disabled: Layer set to {defaultLayerName} at {Time.time}");
+    }
+
+    // 애니메이션 이벤트에서 호출하여 배틀 카메라의 움직임을 멈춥니다.
+    public void PauseBattleCamera()
+    {
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.PauseCameraController();
+        }
+    }
+
+    // 애니메이션 이벤트에서 호출하여 배틀 카메라의 움직임을 다시 시작합니다.
+    public void ResumeBattleCamera()
+    {
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.ResumeCameraController();
+        }
+    }
+    #endregion
     #endregion
 }

@@ -8,12 +8,14 @@ public class BattleCameraController : MonoBehaviour
     public Camera selectionCamera;
     public Camera actionCamera;
 
-    // BattleManager에서 설정할 플레이어 캐릭터 트랜스폼
+    [Header("타겟 (런타임에 설정)")]
     public Transform playerTransform; 
+    public Transform commandTarget;
+
+    [Header("상태")]
+    public bool IsPaused { get; set; } // 카메라 고정 스위치
 
     [Header("Command 카메라 설정") ]
-    [Tooltip("Command 카메라가 바라볼 대상 (런타임에 BattleManager가 설정)")]
-    public Transform commandTarget;
     [Tooltip("Command 카메라 미리보기를 위한 기본 대상 (에디터에서 설정)")]
     public Transform defaultCommandTarget; // Added for Editor preview
     [Tooltip("대상을 바라볼 때의 높이 오프셋")]
@@ -24,8 +26,10 @@ public class BattleCameraController : MonoBehaviour
     [Header("Action 카메라 설정") ]
     [Tooltip("Action 카메라가 플레이어로부터 떨어질 거리 및 각도")]
     public Vector3 actionCameraOffset = new Vector3(0, 3, -5); // 뒤쪽 위
-    [Tooltip("Action 카메라가 플레이어를 따라가는 속도")]
+    [Tooltip("Action 카메라가 플레이어를 따라가는 위치 보간 속도")]
     public float actionCameraFollowSpeed = 5f;
+    [Tooltip("Action 카메라가 플레이어의 회전을 따라가는 속도")]
+    public float actionCameraRotationSpeed = 5f; // 추가된 변수
     [Tooltip("Action 카메라가 플레이어를 바라보는 속도")]
     public float actionCameraLookSpeed = 5f;
     [Tooltip("Action 카메라가 플레이어를 바라볼 때의 높이 오프셋")]
@@ -36,6 +40,8 @@ public class BattleCameraController : MonoBehaviour
     public float springArmMinDistance = 1f; // 카메라가 플레이어에게 당겨질 최소 거리
     [Tooltip("Spring Arm 레이캐스트에 포함될 레이어 마스크")]
     public LayerMask springArmObstructionLayers; // 장애물 레이어 마스크
+
+    private float _currentHorizontalRotation; // 카메라의 현재 수평 회전(Y축)
 
     void Start()
     {
@@ -68,13 +74,24 @@ public class BattleCameraController : MonoBehaviour
         // Action 카메라가 활성화되어 있고 플레이어 트랜스폼이 지정된 경우에만 실행
         else if (actionCamera != null && actionCamera.gameObject.activeInHierarchy && playerTransform != null)
         {
+            // IsPaused 플래그가 true이면 카메라 움직임 로직을 건너뜁니다.
+            if (IsPaused) return;
+
             Transform camTransform = actionCamera.transform;
 
             // Spring Arm Pivot이 없으면 플레이어 위치를 사용
             Transform pivot = springArmPivot != null ? springArmPivot : playerTransform;
 
-            // 목표 카메라 위치 계산 (플레이어 뒤쪽 위)
-            Vector3 idealPosition = pivot.position + playerTransform.TransformDirection(actionCameraOffset);
+            // 1. 목표 수평 회전 값을 플레이어의 현재 Y축 회전 값으로 설정
+            float targetHorizontalRotation = playerTransform.eulerAngles.y;
+
+            // 2. 현재 카메라의 수평 회전 값을 목표 회전 값으로 부드럽게 보간 (LerpAngle 사용)
+            _currentHorizontalRotation = Mathf.LerpAngle(_currentHorizontalRotation, targetHorizontalRotation, Time.deltaTime * actionCameraRotationSpeed);
+
+            // 3. 보간된 회전 값을 사용하여 카메라의 이상적인 위치 계산
+            Quaternion rotation = Quaternion.Euler(0, _currentHorizontalRotation, 0);
+            Vector3 idealPosition = pivot.position + rotation * actionCameraOffset;
+            
             Vector3 currentTargetPosition = idealPosition;
 
             // Spring Arm Raycast
@@ -100,6 +117,7 @@ public class BattleCameraController : MonoBehaviour
         if (commandCamera != null) commandCamera.gameObject.SetActive(true);
         if (selectionCamera != null) selectionCamera.gameObject.SetActive(false);
         if (actionCamera != null) actionCamera.gameObject.SetActive(false);
+        IsPaused = false; // 다른 카메라로 전환 시 항상 Pause 해제
     }
 
     public void SwitchToSelectionView()
@@ -107,6 +125,7 @@ public class BattleCameraController : MonoBehaviour
         if (commandCamera != null) commandCamera.gameObject.SetActive(false);
         if (selectionCamera != null) selectionCamera.gameObject.SetActive(true);
         if (actionCamera != null) actionCamera.gameObject.SetActive(false);
+        IsPaused = false; // 다른 카메라로 전환 시 항상 Pause 해제
     }
 
     public void SwitchToActionView()
@@ -114,5 +133,12 @@ public class BattleCameraController : MonoBehaviour
         if (commandCamera != null) commandCamera.gameObject.SetActive(false);
         if (selectionCamera != null) selectionCamera.gameObject.SetActive(false);
         if (actionCamera != null) actionCamera.gameObject.SetActive(true);
+        IsPaused = false; // Action 카메라로 전환 시 항상 Pause 해제
+
+        // Action 카메라로 전환될 때, 현재 플레이어의 방향을 카메라의 초기 회전 값으로 설정
+        if (playerTransform != null)
+        {
+            _currentHorizontalRotation = playerTransform.eulerAngles.y;
+        }
     }
 }

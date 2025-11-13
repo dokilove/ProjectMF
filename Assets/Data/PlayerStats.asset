@@ -16,5 +16,5 @@ MonoBehaviour:
     unitName: Player080
     maxHP: 120
     currentHP: 112
-    attackPower: 20
+    attackPower: 10
     moveSpeed: 0.2

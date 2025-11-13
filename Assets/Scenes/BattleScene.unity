@@ -896,7 +896,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1155,8 +1155,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067676500}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.11367787, y: 0.2281803, z: -0.026835704, w: 0.9665873}
-  m_LocalPosition: {x: -1.5, y: 2, z: -6}
+  m_LocalRotation: {x: 0.09853762, y: 0, z: 0, w: 0.99513334}
+  m_LocalPosition: {x: 0, y: 2, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1446,15 +1446,16 @@ MonoBehaviour:
   defaultCommandTarget: {fileID: 426275472}
   commandLookAtHeight: 1.5
   smoothSpeed: 5
-  actionCameraOffset: {x: -1.5, y: 2, z: -3}
+  actionCameraOffset: {x: -2, y: 2, z: -4}
   actionCameraFollowSpeed: 5
-  actionCameraLookSpeed: 5
+  actionCameraRotationSpeed: 3
+  actionCameraLookSpeed: 10
   actionCameraLookAtHeight: 1.2
   springArmPivot: {fileID: 0}
-  springArmMinDistance: 2
+  springArmMinDistance: 4
   springArmObstructionLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 262144
 --- !u!4 &1629143853
 Transform:
   m_ObjectHideFlags: 0

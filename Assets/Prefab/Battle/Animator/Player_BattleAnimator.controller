@@ -41,7 +41,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.06862994
+  m_TransitionDuration: 0
   m_TransitionOffset: 0
   m_ExitTime: 0.75
   m_HasExitTime: 1
@@ -114,7 +114,8 @@ AnimatorState:
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -5849821122221630235}
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: 986729339738914987}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -191,6 +192,18 @@ AnimatorController:
     m_IKPass: 0
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
+--- !u!114 &986729339738914987
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e41ba24f94c8d84680bb908f56149fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnterIdleBehaviour
 --- !u!114 &2058818033327845612
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -250,7 +263,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0
   m_TransitionOffset: 0
   m_ExitTime: 0.75
   m_HasExitTime: 1
@@ -281,7 +294,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 7a7e0015742ae424bb671260b272218e, type: 2}
+  m_Motion: {fileID: 7400000, guid: eaefad0c24c810543967809586ba5ad9, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -299,8 +312,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17388281f91103442987e9a649cafcbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboWindowBehaviour
-  comboWindowStart: 0.4
-  comboWindowEnd: 0.8
+  comboWindowStart: 0.1
+  comboWindowEnd: 0.5
 --- !u!1102 &8798156681229108874
 AnimatorState:
   serializedVersion: 6
@@ -324,7 +337,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: ec3c4fb3de5249c45bd101ab943af5fc, type: 2}
+  m_Motion: {fileID: 7400000, guid: 4db571ac6d866b94d8f68f100ecd22e2, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -344,7 +357,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0
   m_TransitionOffset: 0
   m_ExitTime: 0.7
   m_HasExitTime: 1

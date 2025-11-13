@@ -41,6 +41,9 @@ public class BattleManager : MonoBehaviour
 
     private List<GameObject> deactivatedDungeonObjects = new List<GameObject>();
 
+    [Header("Battle End Settings")]
+    [SerializeField] private float battleEndDelay = 2f; // 모든 적 사망 후 다음 페이즈로 넘어가기 전 딜레이
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -367,15 +370,7 @@ public class BattleManager : MonoBehaviour
         if (activeEnemies.Count == 0)
         {
             Debug.Log("All enemies defeated! Battle won!");
-            if (isTestMode)
-            {
-                Debug.Log("Test Mode: Restarting battle.");
-                RestartBattle();
-            }
-            else
-            {
-                EndBattle();
-            }
+            StartCoroutine(ProcessBattleEnd()); // 코루틴 시작
         }
         else
         {
@@ -384,6 +379,22 @@ public class BattleManager : MonoBehaviour
             {
                 GoToCommandPhase();
             }
+        }
+    }
+
+    private IEnumerator ProcessBattleEnd()
+    {
+        // 모든 적 사망 후 딜레이
+        yield return new WaitForSeconds(battleEndDelay);
+
+        if (isTestMode)
+        {
+            Debug.Log("Test Mode: Restarting battle.");
+            RestartBattle();
+        }
+        else
+        {
+            EndBattle();
         }
     }
 
@@ -499,10 +510,28 @@ public class BattleManager : MonoBehaviour
     {
         if (currentPhase == BattlePhase.Action)
         {
-            if (playerBattleCharacter != null)
+            if (playerBattleCharacter != null && SelectedEnemy != null)
             {
-                playerBattleCharacter.PlayAttackAnimation();
+                playerBattleCharacter.PlayAttackAnimation(SelectedEnemy.transform);
             }
         }
     }
+
+    #region Camera Control
+    public void PauseCameraController()
+    {
+        if (battleCameraController != null)
+        {
+            battleCameraController.IsPaused = true;
+        }
+    }
+
+    public void ResumeCameraController()
+    {
+        if (battleCameraController != null)
+        {
+            battleCameraController.IsPaused = false;
+        }
+    }
+    #endregion
 }

@@ -22,9 +22,9 @@ TagManager:
   - 
   - Dungeon
   - Battle
-  - 
-  - 
-  - 
+  - Battle_Player
+  - Battle_Player_Phasing
+  - Battle_Enemy
   - 
   - 
   - 
