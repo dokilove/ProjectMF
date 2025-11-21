@@ -21,7 +21,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 5ec4ae216a0946d4ca6ab43f2567a6bb, type: 2}
+  m_Motion: {fileID: 7400000, guid: 8cc735939aa85b04e8e20d6198b1909a, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -216,8 +216,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17388281f91103442987e9a649cafcbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboWindowBehaviour
-  comboWindowStart: 0.4
-  comboWindowEnd: 0.8
+  comboWindowStart: 0.125
+  comboWindowEnd: 0.867
 --- !u!1107 &3501030778524464107
 AnimatorStateMachine:
   serializedVersion: 6
@@ -294,7 +294,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: eaefad0c24c810543967809586ba5ad9, type: 2}
+  m_Motion: {fileID: 7400000, guid: 23f7507bfd465004696ac4225b2fc7ed, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -313,7 +313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboWindowBehaviour
   comboWindowStart: 0.1
-  comboWindowEnd: 0.5
+  comboWindowEnd: 0.836
 --- !u!1102 &8798156681229108874
 AnimatorState:
   serializedVersion: 6
@@ -337,7 +337,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 4db571ac6d866b94d8f68f100ecd22e2, type: 2}
+  m_Motion: {fileID: 7400000, guid: c30f6c3c88fb5b24d9b169452430e916, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
