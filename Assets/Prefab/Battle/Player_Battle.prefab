@@ -83,6 +83,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 241a5d0dbe0edc1499c5e973e668f26f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackHitbox
+  useVibration: 1
+  vibrationDuration: 0.15
+  lowFrequency: 0.1
+  highFrequency: 0.3
 --- !u!1 &1810874799317605331
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +204,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 241a5d0dbe0edc1499c5e973e668f26f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackHitbox
+  useVibration: 1
+  vibrationDuration: 0.15
+  lowFrequency: 0.5
+  highFrequency: 0.9
 --- !u!1 &5790682908962794754
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,6 +291,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 241a5d0dbe0edc1499c5e973e668f26f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackHitbox
+  useVibration: 1
+  vibrationDuration: 0.15
+  lowFrequency: 0.5
+  highFrequency: 0.9
 --- !u!1 &7288632897982827583
 GameObject:
   m_ObjectHideFlags: 0

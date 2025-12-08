@@ -1,11 +1,21 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Collider))]
+// 공격 판정을 위한 히트박스 로직
 public class AttackHitbox : MonoBehaviour
 {
+    [Header("Vibration Settings")]
+    [SerializeField] private bool useVibration = true;
+    [SerializeField] private float vibrationDuration = 0.15f;
+    [SerializeField] private float lowFrequency = 0.5f;
+    [SerializeField] private float highFrequency = 0.9f;
+    
     private BattleCharacter attacker;
     private Collider hitboxCollider;
-    private DebugHitboxVisualizer visualizer; // 시각화 스크립트 참조
+    private DebugHitboxVisualizer visualizer;
+    private Coroutine rumbleCoroutine;
 
     private void Awake()
     {
@@ -18,9 +28,9 @@ public class AttackHitbox : MonoBehaviour
         }
     }
 
-    public void Initialize(BattleCharacter owner)
+    public void Initialize(BattleCharacter newAttacker)
     {
-        attacker = owner;
+        this.attacker = newAttacker;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -37,6 +47,16 @@ public class AttackHitbox : MonoBehaviour
             damageable.TakeDamage(damage);
             
             Debug.Log($"{attacker.name} hit {other.name} for {damage} damage.");
+
+            // 진동 효과 호출
+            if (useVibration)
+            {
+                // 플레이어가 공격하거나 플레이어가 맞았을 때만 진동
+                if (attacker.IsPlayer || (targetCharacter != null && targetCharacter.IsPlayer))
+                {
+                    StartRumble();
+                }
+            }
 
             // [개선] 시각화 스크립트에 적중했음을 알림
             if (visualizer != null)
@@ -62,5 +82,29 @@ public class AttackHitbox : MonoBehaviour
         {
             visualizer.SetVisualizerActive(active);
         }
+    }
+
+    private void StartRumble()
+    {
+        // 현재 연결된 게임패드가 없으면 실행하지 않음
+        if (Gamepad.current == null) return;
+
+        // 이미 다른 진동 코루틴이 실행 중이면 중지
+        if (rumbleCoroutine != null)
+        {
+            StopCoroutine(rumbleCoroutine);
+            // 이전 진동을 확실히 멈춤
+            Gamepad.current.SetMotorSpeeds(0f, 0f);
+        }
+        
+        rumbleCoroutine = StartCoroutine(RumbleCoroutine(vibrationDuration, lowFrequency, highFrequency));
+    }
+
+    private IEnumerator RumbleCoroutine(float duration, float low, float high)
+    {
+        Gamepad.current.SetMotorSpeeds(low, high);
+        yield return new WaitForSeconds(duration);
+        Gamepad.current.SetMotorSpeeds(0f, 0f);
+        rumbleCoroutine = null; // 코루틴 완료 후 참조 정리
     }
 }
